@@ -15,9 +15,7 @@ const AuthUtil = ({ children }: { children: React.ReactNode }) => {
     useEffect(() => {
         const walletAddress = localStorage.getItem("walletAddress")
         if (!walletAddress){
-            // if(pathname === "/dashboard/[*]" || pathname==="campaign/[*] || pathname === "/create"){
                 router.push("/auth");
-            // }
         }
         else {
             dispatch(setWalletConnectionStatus(true))

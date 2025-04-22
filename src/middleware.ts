@@ -6,9 +6,7 @@ export const config = {
         '/campaign/:path*',
         '/create',
         '/auth',
-        '/',
-        '/how-it-works',
-        '/campaigns',
+        // '/campaigns/:path*',
     ],
 }
 
