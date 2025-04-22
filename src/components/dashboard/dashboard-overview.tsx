@@ -85,7 +85,7 @@ export default function DashboardOverview() {
                   <Progress
                     value={percentageReached}
                     className="h-2 bg-neutral-200"
-                    indicatorClassName="bg-[#4c6ef5]"
+                    style={{ backgroundColor: '#4c6ef5' }}
                   />
                 </div>
 
@@ -98,7 +98,7 @@ export default function DashboardOverview() {
                         <div className="truncate text-neutral-700">{campaign.title}</div>
                         <div className="font-medium text-neutral-800">{progress.toFixed(0)}%</div>
                       </div>
-                      <Progress value={progress} className="h-2 bg-neutral-200" indicatorClassName="bg-[#4c6ef5]" />
+                      <Progress value={progress} className="h-2 bg-neutral-200" style={{ '--progress-color': '#4c6ef5' } as React.CSSProperties} />
                     </div>
                   )
                 })}

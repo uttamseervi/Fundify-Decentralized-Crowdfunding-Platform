@@ -9,7 +9,9 @@ import { useToast } from "@/hooks/use-toast"
 import { useDisconnect, useActiveWallet } from "thirdweb/react"
 import { useDispatch } from "react-redux"
 import { setWalletConnectionStatus } from "@/store/reducers/userReducer"
-
+import { client } from "@/app/client"
+import { ConnectButton } from "thirdweb/react"
+import Cookies from 'js-cookie'
 
 export default function DashboardHeader() {
   const router = useRouter()
@@ -18,10 +20,11 @@ export default function DashboardHeader() {
   const { disconnect } = useDisconnect()
   const { toast } = useToast()
   const [walletAddress, setWalletAddress] = useState<string | null>(null)
-
   useEffect(() => {
     // Get wallet address from active wallet directly instead of localStorage
+
     if (wallet) {
+      console.log("the active wallet is", wallet)
       setWalletAddress(wallet.getAccount()?.address ?? null)
     }
   }, [wallet])
@@ -30,6 +33,8 @@ export default function DashboardHeader() {
     dispatch(setWalletConnectionStatus(false))
     // Clear wallet address from localStorage
     localStorage.removeItem("walletAddress")
+    Cookies.remove("walletAddress")
+
 
     toast({
       title: "Logged out",
@@ -89,16 +94,8 @@ export default function DashboardHeader() {
           </TooltipProvider>
 
           <div className="hidden items-center gap-2 md:flex">
-            <div className="h-8 w-8 rounded-full bg-neutral-300">
-              <span className="sr-only">Profile</span>
-            </div>
             <div className="text-sm">
-              <p className="font-medium text-neutral-800">Account</p>
-              <p className="font-mono text-xs text-neutral-600">
-                {walletAddress
-                  ? `${walletAddress.substring(0, 6)}...${walletAddress.substring(walletAddress.length - 4)}`
-                  : ""}
-              </p>
+              <ConnectButton client={client} onDisconnect={() => handleLogout()} />
             </div>
           </div>
         </div>

@@ -10,6 +10,7 @@ import { ConnectButton, useActiveAccount } from "thirdweb/react"
 import { client } from "../client"
 import { useDispatch } from "react-redux"
 import { setWalletConnectionStatus } from "@/store/reducers/userReducer"
+import Cookies from 'js-cookie'
 
 export default function AuthPage() {
   const router = useRouter()
@@ -22,14 +23,17 @@ export default function AuthPage() {
     if (activeAccount?.address) {
       setWalletAddress(activeAccount.address)
       localStorage.setItem("walletAddress", activeAccount.address)
-    }
-  }, [activeAccount])
-  useEffect(() => {
-    if (activeAccount?.address) {
+
+      // Set the walletAddress cookie
+      Cookies.set("walletAddress", activeAccount.address, { expires: 1, path: '/' })
+
+      // Dispatch Redux action to update wallet connection status
       dispatch(setWalletConnectionStatus(true))
+
+      // Redirect to dashboard after connection
       router.push("/dashboard")
     }
-  }, [activeAccount])
+  }, [activeAccount, dispatch, router])
 
   return (
     <div className="container flex min-h-[80vh] items-center justify-center py-12">

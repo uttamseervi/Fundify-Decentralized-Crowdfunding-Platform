@@ -1,9 +1,9 @@
 "use client"
 
+
 import { Button } from "@/components/ui/button"
 import { motion } from "framer-motion"
 import Link from "next/link"
-import Globe from "@/components/globe"
 import { ArrowRight, Lightbulb, Users, Rocket } from "lucide-react"
 import Image from "next/image"
 import placeholder from "../public/placeholder.svg"
@@ -12,9 +12,7 @@ export default function LandingPage() {
     <div className="flex flex-col">
       {/* Hero Section */}
       <section className="relative flex min-h-[90vh] flex-col items-center justify-center overflow-hidden bg-[#f3f4f6] px-4 py-20 text-center md:py-32">
-        <div className="absolute inset-0 -z-10 opacity-10">
-          <Globe />
-        </div>
+
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
