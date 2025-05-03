@@ -5,10 +5,8 @@ import "./globals.css"
 
 import { ThirdwebProvider } from "thirdweb/react";
 import { ThemeProvider } from "@/components/theme-provider"
-import Navbar from "@/components/navbar"
-import Footer from "@/components/footer"
+
 import { StoreProvider } from "@/store/storeProvider";
-import AuthUtil from "@/components/authUtil";
 
 
 const spaceGrotesk = Space_Grotesk({
@@ -38,15 +36,11 @@ export default function RootLayout({
         <StoreProvider>
           <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false}>
             <ThirdwebProvider>
-              <AuthUtil>
-                <div className="flex min-h-screen flex-col">
-                  <Navbar />
-                  <main className="flex-1">
-                    {children}
-                  </main>
-                  <Footer />
-                </div>
-              </AuthUtil>
+              <div className="flex min-h-screen flex-col">
+                <main className="flex-1">
+                  {children}
+                </main>
+              </div>
             </ThirdwebProvider>
           </ThemeProvider>
         </StoreProvider>

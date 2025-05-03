@@ -8,16 +8,13 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { useToast } from "@/hooks/use-toast"
 import { useDisconnect, useActiveWallet } from "thirdweb/react"
 import { useDispatch } from "react-redux"
-import { setWalletConnectionStatus } from "@/store/reducers/userReducer"
 import { client } from "@/app/client"
 import { ConnectButton } from "thirdweb/react"
 import Cookies from 'js-cookie'
 
 export default function DashboardHeader() {
   const router = useRouter()
-  const dispatch = useDispatch()
   const wallet = useActiveWallet()
-  const { disconnect } = useDisconnect()
   const { toast } = useToast()
   const [walletAddress, setWalletAddress] = useState<string | null>(null)
   useEffect(() => {
@@ -29,25 +26,7 @@ export default function DashboardHeader() {
     }
   }, [wallet])
 
-  const handleLogout = () => {
-    dispatch(setWalletConnectionStatus(false))
-    // Clear wallet address from localStorage
-    localStorage.removeItem("walletAddress")
-    Cookies.remove("walletAddress")
 
-
-    toast({
-      title: "Logged out",
-      description: "You have been successfully logged out.",
-    })
-
-    // Disconnect the wallet
-    if (wallet) {
-      disconnect(wallet)
-    }
-
-    router.push("/")
-  }
 
   return (
     <header className="border-b border-neutral-200 bg-[#f3f4f6] px-6 py-3">
@@ -80,7 +59,6 @@ export default function DashboardHeader() {
                 <Button
                   variant="ghost"
                   size="icon"
-                  onClick={handleLogout} // Use the single logout function
                   className="text-neutral-700 hover:bg-neutral-200/70 hover:text-neutral-900"
                 >
                   <LogOut className="h-5 w-5" />
@@ -95,7 +73,7 @@ export default function DashboardHeader() {
 
           <div className="hidden items-center gap-2 md:flex">
             <div className="text-sm">
-              <ConnectButton client={client} onDisconnect={() => handleLogout()} />
+              <ConnectButton client={client}  />
             </div>
           </div>
         </div>

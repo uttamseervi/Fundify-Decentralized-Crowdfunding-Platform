@@ -48,6 +48,12 @@ export default function CreateCampaignPage() {
 
   return (
     <div className="container max-w-3xl py-12">
+      <Link href="/" className="p-2 m-2 hover:underline">
+        <div className="flex flex-row hover:underline">
+          <span><ArrowBigLeft /> </span>
+          <h4>Go back to home</h4>
+        </div>
+      </Link>
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
         <Link href="/dashboard" className="p-2 m-2 hover:underline">
           <div className="flex flex-row hover:underline">

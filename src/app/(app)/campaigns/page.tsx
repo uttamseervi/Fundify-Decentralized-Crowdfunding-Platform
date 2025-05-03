@@ -5,8 +5,9 @@ import { motion } from "framer-motion"
 import CampaignCard from "@/components/campaign-card"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
-import { Search } from "lucide-react"
+import { ArrowBigLeft, Search } from "lucide-react"
 import { campaigns } from "@/lib/data"
+import Link from "next/link"
 
 export default function CampaignsPage() {
   const [searchQuery, setSearchQuery] = useState("")
@@ -24,6 +25,12 @@ export default function CampaignsPage() {
 
   return (
     <div className="container py-12">
+      <Link href="/" className="p-2 m-2 hover:underline">
+        <div className="flex flex-row hover:underline">
+          <span><ArrowBigLeft /> </span>
+          <h4>Go back to home</h4>
+        </div>
+      </Link>
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}

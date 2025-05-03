@@ -1,74 +1,72 @@
-"use client"
+'use client'
 
-import { useEffect, useState } from "react"
-import { useRouter } from "next/navigation"
+import { useState } from "react"
 import { motion } from "framer-motion"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Wallet } from "lucide-react"
-import { ConnectButton, useActiveAccount } from "thirdweb/react"
-import { client } from "../client"
-import { useDispatch } from "react-redux"
-import { setWalletConnectionStatus } from "@/store/reducers/userReducer"
-import Cookies from 'js-cookie'
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
+import ConnectionButton from "./connection-button"
+import { useActiveAccount } from "thirdweb/react"
+import Link from "next/link"
+import { ArrowBigRight } from "lucide-react"
 
 export default function AuthPage() {
-  const router = useRouter()
-  const dispatch = useDispatch()
+  const [tab, setTab] = useState("signin")
   const activeAccount = useActiveAccount()
-  const [walletAddress, setWalletAddress] = useState("")
-
-  // Save wallet address once connected
-  useEffect(() => {
-    if (activeAccount?.address) {
-      setWalletAddress(activeAccount.address)
-      localStorage.setItem("walletAddress", activeAccount.address)
-
-      // Set the walletAddress cookie
-      Cookies.set("walletAddress", activeAccount.address, { expires: 1, path: '/' })
-
-      // Dispatch Redux action to update wallet connection status
-      dispatch(setWalletConnectionStatus(true))
-
-      // Redirect to dashboard after connection
-      router.push("/dashboard")
-    }
-  }, [activeAccount, dispatch, router])
 
   return (
-    <div className="container flex min-h-[80vh] items-center justify-center py-12">
+    <div className="min-h-screen bg-white dark:bg-black flex flex-col justify-center items-center py-12">
       <motion.div
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.5 }}
-        className="w-full max-w-md"
+        className="w-full max-w-lg"
       >
-        <Card>
-          <CardHeader className="text-center">
-            <CardTitle className="font-playfair text-2xl">Welcome to Fundify</CardTitle>
-            <CardDescription>Connect your wallet to continue</CardDescription>
-          </CardHeader>
+        <Tabs value={tab} onValueChange={setTab} className="space-y-6">
+          <TabsList className="justify-center mb-6">
+            <TabsTrigger value="signin">Sign In</TabsTrigger>
+            <TabsTrigger value="signup">Sign Up</TabsTrigger>
+          </TabsList>
 
-          <CardContent className="flex flex-col items-center">
-            <div className="mb-6 rounded-full bg-gray-100 p-6">
-              <Wallet className="h-12 w-12" />
+          <TabsContent value="signin">
+            <div className="rounded-xl bg-gray-100 dark:bg-gray-900 p-8 shadow-lg space-y-6 text-center">
+              <div className="flex justify-center">
+                <Wallet className="h-12 w-12 text-gray-600 dark:text-gray-300" />
+              </div>
+              <h2 className="text-2xl font-bold">Welcome to Fundify</h2>
+              <p className="text-sm text-gray-500 dark:text-gray-400">Sign in to continue with your wallet</p>
+              <ConnectionButton type="signin" />
+              <p className="text-xs text-gray-500 mt-4">
+                By signing in, you agree to our{" "}
+                <a href="#" className="underline hover:text-black dark:hover:text-white">Terms of Service</a> and{" "}
+                <a href="#" className="underline hover:text-black dark:hover:text-white">Privacy Policy</a>.
+              </p>
             </div>
-            <ConnectButton client={client} />
-          </CardContent>
+          </TabsContent>
 
-          <CardFooter className="flex flex-col text-center text-sm text-gray-500">
-            <p>By connecting your wallet, you agree to our</p>
-            <p>
-              <a href="#" className="underline hover:text-black">
-                Terms of Service
-              </a>{" "}
-              and{" "}
-              <a href="#" className="underline hover:text-black">
-                Privacy Policy
-              </a>
-            </p>
-          </CardFooter>
-        </Card>
+          <TabsContent value="signup">
+            <div className="rounded-xl bg-gray-100 dark:bg-gray-900 p-8 shadow-lg space-y-6 text-center">
+              <div className="flex justify-center">
+                <Wallet className="h-12 w-12 text-gray-600 dark:text-gray-300" />
+              </div>
+              <h2 className="text-2xl font-bold">Create an Account</h2>
+              <p className="text-sm text-gray-500 dark:text-gray-400">Register with your wallet to get started</p>
+              <ConnectionButton type="signup" />
+              <p className="text-xs text-gray-500 mt-4">
+                By signing up, you agree to our{" "}
+                <a href="#" className="underline hover:text-black dark:hover:text-white">Terms of Service</a> and{" "}
+                <a href="#" className="underline hover:text-black dark:hover:text-white">Privacy Policy</a>.
+              </p>
+            </div>
+          </TabsContent>
+        </Tabs>
+
+        {activeAccount && (
+          <Link href="/dashboard">
+            <div className="mt-6 flex items-center justify-center text-sm text-gray-600 dark:text-gray-400 hover:text-black dark:hover:text-white transition">
+              Go to Dashboard <ArrowBigRight className="ml-2" />
+            </div>
+          </Link>
+        )}
       </motion.div>
     </div>
   )

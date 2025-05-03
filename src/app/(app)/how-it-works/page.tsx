@@ -2,7 +2,8 @@
 
 import { motion } from "framer-motion"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Shield, Lock, Zap, BarChart, Users, Globe } from "lucide-react"
+import { Shield, Lock, Zap, BarChart, Users, Globe, ArrowBigLeft } from "lucide-react"
+import Link from "next/link"
 
 export default function HowItWorksPage() {
   const fadeIn = {
@@ -52,6 +53,12 @@ export default function HowItWorksPage() {
 
   return (
     <div className="bg-[#f7f7f7]">
+        <Link href="/" className="p-2 m-2 hover:underline">
+          <div className="flex flex-row hover:underline ml-4">
+            <span><ArrowBigLeft /> </span>
+            <h4>Go back to home</h4>
+          </div>
+        </Link>
       {/* Hero Section */}
       <section className="py-20">
         <div className="container max-w-4xl">
