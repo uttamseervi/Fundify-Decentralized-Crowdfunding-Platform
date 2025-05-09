@@ -54,7 +54,7 @@ export default function HowItWorksPage() {
   return (
     <div className="bg-[#f7f7f7]">
         <Link href="/" className="p-2 m-2 hover:underline">
-          <div className="flex flex-row hover:underline ml-4">
+          <div className="flex flex-row hover:underline ml-8">
             <span><ArrowBigLeft /> </span>
             <h4>Go back to home</h4>
           </div>

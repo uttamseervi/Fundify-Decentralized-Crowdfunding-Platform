@@ -1,5 +1,4 @@
 'use server';
-
 import { cookies } from "next/headers";
 import {
     type GenerateLoginPayloadParams,
@@ -8,7 +7,7 @@ import {
 } from "thirdweb/auth";
 import { privateKeyToAccount } from "thirdweb/wallets";
 import { createThirdwebClient } from "thirdweb";
-import { supabase } from "@/utils/supabase-client";
+import { prisma } from "@/utils/prisma-client"; 
 
 // 1. Setup thirdweb client and auth
 const secretKey: string = process.env.SECRET_KEY || "";
@@ -27,14 +26,16 @@ const thirdwebAuth = createAuth({
     },
 });
 
+// 2. Generate login payload
 export async function generatePayload(payload: GenerateLoginPayloadParams) {
     console.log("Generating payload:", payload);
     return thirdwebAuth.generatePayload(payload);
 }
 
-// 3. Login and Generate JWT only if user exists in Supabase
+// 3. Login and generate JWT using Prisma
 export async function login(payload: VerifyLoginPayloadParams) {
     const verifiedPayload = await thirdwebAuth.verifyPayload(payload);
+    console.log("verified payload is ", verifiedPayload);
 
     if (!verifiedPayload.valid) {
         throw new Error("Invalid wallet signature. Authentication failed.");
@@ -42,17 +43,12 @@ export async function login(payload: VerifyLoginPayloadParams) {
 
     const smartWalletAddress = verifiedPayload.payload.address;
 
-    // Supabase check
-    const { data: user, error } = await supabase
-        .from("users")
-        .select("*")
-        .eq("smart_wallet_address", smartWalletAddress)
-        .maybeSingle();
-
-    if (error) {
-        console.error("Supabase error:", error.message);
-        throw new Error("Database error during login.");
-    }
+    // Prisma check
+    const user = await prisma.user.findUnique({
+        where: {
+            smartWalletAddress: smartWalletAddress,
+        },
+    });
 
     if (!user) {
         console.warn("User not found in DB:", smartWalletAddress);

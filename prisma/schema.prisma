@@ -1,0 +1,57 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                 String     @id @default(cuid())
+  wallet             String     @unique
+  smartWalletAddress String?    @unique
+  username           String?
+  email              String?    @unique
+  campaigns          Campaign[] @relation("UserCampaigns")
+  donations          Donation[] @relation("UserDonations")
+  createdAt          DateTime   @default(now())
+  updatedAt          DateTime   @updatedAt
+}
+
+model Campaign {
+  id          String         @id @default(cuid())
+  title       String
+  description String
+  imageUrl    String?
+  category    String?
+  ipfsHash    String
+  goalAmount  Float
+  deadline    DateTime
+  status      CampaignStatus @default(ACTIVE)
+  creator     User           @relation("UserCampaigns", fields: [creatorId], references: [id])
+  creatorId   String
+  donations   Donation[]     @relation("CampaignDonations")
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+}
+
+model Donation {
+  id         String   @id @default(cuid())
+  amount     Float
+  donor      User     @relation("UserDonations", fields: [donorId], references: [id])
+  donorId    String
+  campaign   Campaign @relation("CampaignDonations", fields: [campaignId], references: [id])
+  campaignId String
+  txHash     String   @unique
+  createdAt  DateTime @default(now())
+}
+
+enum CampaignStatus {
+  ACTIVE
+  COMPLETED
+  FAILED
+}

@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { ConnectButton, useAdminWallet } from "thirdweb/react";
 import { client } from "../client";
@@ -19,7 +18,7 @@ import { registerUser } from "@/store/reducers/userReducer";
 export default function ConnectionButton({ type = "signin" }) {
     const wallets = [createWallet("io.metamask")];
     const router = useRouter();
-    const dispatch = useDispatch()
+    const dispatch = useDispatch();
     const adminWallet = useAdminWallet();
     const { toast } = useToast();
 
@@ -33,10 +32,15 @@ export default function ConnectionButton({ type = "signin" }) {
             wallets={wallets}
             auth={{
                 isLoggedIn: async () => {
-                    return await isLoggedIn();
+                    const result = await isLoggedIn();
+                    console.log("🔍 isLoggedIn:", result);
+                    return result;
                 },
                 getLoginPayload: async ({ address }) => {
+                    console.log("⚙️ getLoginPayload: Received address:", address);
+
                     if (type === "signup") {
+                        console.log("📝 Signup detected. Dispatching registerUser...");
                         dispatch<any>(
                             registerUser({
                                 smartWalletAddress: address,
@@ -47,15 +51,20 @@ export default function ConnectionButton({ type = "signin" }) {
                         );
                     }
 
-                    return generatePayload({ address, chainId: 11155111 });
+                    const payload = await generatePayload({ address, chainId: 11155111 });
+                    console.log("📦 Generated login payload:", payload);
+                    return payload;
                 },
                 doLogin: async (params) => {
+                    console.log("✅ Performing login with params:", params);
                     await login(params);
+                    console.log("🎉 Login successful. Redirecting to dashboard...");
                     router.push("/dashboard");
                 },
                 doLogout: async () => {
+                    console.log("logging out!");
                     await logout();
-                    router.push("/signin");
+                    router.push("/auth")
                 },
             }}
         />

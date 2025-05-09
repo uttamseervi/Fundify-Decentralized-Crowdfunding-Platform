@@ -14,15 +14,8 @@ export default function Navbar() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const router = useRouter();
 
-  const walletStatus = useSelector((state: any) => state.user.walletConnectionStatus);
-  console.log("Wallet Status: ", walletStatus);
 
-  // Sync isLoggedIn with Redux walletStatus
-  useEffect(() => {
-    setIsLoggedIn(walletStatus === true);
-  }, [walletStatus]);
 
-  // Scroll shadow effect
   useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 10);
@@ -34,9 +27,8 @@ export default function Navbar() {
 
   return (
     <header
-      className={`sticky top-0 z-50 w-full transition-all duration-200 ${
-        isScrolled ? "bg-[#f3f4f6] shadow-sm" : "bg-transparent"
-      }`}
+      className={`sticky top-0 z-50 w-full transition-all duration-200 ${isScrolled ? "bg-[#f3f4f6] shadow-sm" : "bg-transparent"
+        }`}
     >
       <div className="container flex h-16 items-center justify-between px-4">
         <Link
@@ -83,7 +75,7 @@ export default function Navbar() {
               asChild
               className="bg-[#4c6ef5] hover:bg-[#4c6ef5]/90 text-white"
             >
-              <Link href="/auth">Connect Wallet</Link>
+              <Link href="/auth">Start Journey</Link>
             </Button>
           )}
         </nav>
@@ -149,7 +141,7 @@ export default function Navbar() {
               className="mt-2 w-full bg-[#4c6ef5] hover:bg-[#4c6ef5]/90 text-white"
             >
               <Link href="/auth" onClick={() => setIsOpen(false)}>
-                Connect Wallet
+                Start Journey
               </Link>
             </Button>
           )}

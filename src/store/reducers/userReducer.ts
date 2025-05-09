@@ -2,6 +2,7 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import axios from "axios";
 
 const initialState: {
+    id: string,
     name: string;
     isAuthenticated: boolean;
     email: string;
@@ -11,6 +12,7 @@ const initialState: {
     loading: boolean;
     error: string | null;
 } = {
+    id: "unknown-id",
     name: "Echo-Client",
     isAuthenticated: false,
     email: "echoProof@echo.com",
@@ -28,7 +30,7 @@ export const registerUser = createAsyncThunk(
         { smartWalletAddress, walletAddress, toast, router }: any,
         { rejectWithValue }
     ) => {
-        console.log("finally inside the redux ")
+        console.log("finally inside the redux ", smartWalletAddress, walletAddress)
         if (!smartWalletAddress || !walletAddress) {
             toast({
                 title: "Wallet not connected",
@@ -43,7 +45,7 @@ export const registerUser = createAsyncThunk(
                 smart_wallet_address: smartWalletAddress,
                 wallet_address: walletAddress,
             });
-
+            console.log("the response from the redux is ", response.data)
             if (response.status === 201) {
                 toast({
                     title: "Registration successful",
@@ -152,12 +154,14 @@ const userSlice = createSlice({
                 state.error = null;
             })
             .addCase(registerUser.fulfilled, (state, action) => {
+                console.log("the action payload is ", action.payload)
                 state.loading = false;
-                state.smart_wallet_address = action.payload.smart_wallet_address;
-                state.wallet_address = action.payload.wallet_address;
+                state.id = action.payload.user.id
+                state.smart_wallet_address = action.payload.user.smart_wallet_address;
+                state.wallet_address = action.payload.user.wallet_address;
                 state.isAuthenticated = true;
-                state.name = action.payload.name || state.name;
-                state.email = action.payload.email || state.email;
+                state.name = action.payload.user.name || state.name;
+                state.email = action.payload.user.email || state.email;
             })
             .addCase(registerUser.rejected, (state, action) => {
                 state.loading = false;

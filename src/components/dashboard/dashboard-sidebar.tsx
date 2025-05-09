@@ -7,7 +7,6 @@ import { motion } from "framer-motion"
 import { cn } from "@/lib/utils"
 import { LayoutDashboard, BarChart3, PlusCircle, Users, Settings, User, ChevronLeft, ChevronRight } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import ConnectionButton from "@/app/auth/connection-button"
 const sidebarLinks = [
   {
     title: "Dashboard",
@@ -108,16 +107,7 @@ export default function DashboardSidebar() {
         </nav>
       </div>
 
-      <div className="mt-auto border-t border-neutral-200 p-4">
-        {!isCollapsed && (
-          <div className="flex items-center gap-3 rounded-md bg-neutral-200/50 px-3 py-2">
-            <div className="h-8 w-8 rounded-full bg-neutral-300"></div>
-            <div>
-              <ConnectionButton type="signin" />
-            </div>
-          </div>
-        )}
-      </div>
+
     </div>
   )
 }

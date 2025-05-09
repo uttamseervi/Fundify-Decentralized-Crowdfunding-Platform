@@ -9,8 +9,7 @@ import { useToast } from "@/hooks/use-toast"
 import { useDisconnect, useActiveWallet } from "thirdweb/react"
 import { useDispatch } from "react-redux"
 import { client } from "@/app/client"
-import { ConnectButton } from "thirdweb/react"
-import Cookies from 'js-cookie'
+import ConnectionButton from "@/app/auth/connection-button"
 
 export default function DashboardHeader() {
   const router = useRouter()
@@ -53,27 +52,9 @@ export default function DashboardHeader() {
             </Tooltip>
           </TooltipProvider>
 
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="text-neutral-700 hover:bg-neutral-200/70 hover:text-neutral-900"
-                >
-                  <LogOut className="h-5 w-5" />
-                  <span className="sr-only">Logout</span>
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>Disconnect Wallet</p>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-
           <div className="hidden items-center gap-2 md:flex">
             <div className="text-sm">
-              <ConnectButton client={client}  />
+              <ConnectionButton />
             </div>
           </div>
         </div>
