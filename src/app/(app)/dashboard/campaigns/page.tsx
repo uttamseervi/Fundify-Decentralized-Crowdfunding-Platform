@@ -1,25 +1,49 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
+import axios from "axios"
 import { motion } from "framer-motion"
 import { Plus, Search } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { campaigns } from "@/lib/data"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 import CampaignCard from "@/components/dashboard/campaign-card"
 import Link from "next/link"
+import { Campaign } from "@/lib/types"
 
 export default function CampaignsPage() {
+
+
+  const [campaigns, setCampaigns] = useState<Campaign[]>([])
   const [searchQuery, setSearchQuery] = useState("")
   const [statusFilter, setStatusFilter] = useState("all")
+  const [loading, setLoading] = useState(true)
 
-  // Filter campaigns to simulate user's campaigns (first 6)
-  const userCampaigns = campaigns.slice(0, 6)
+  useEffect(() => {
+    const fetchCampaigns = async () => {
+      try {
+        const res = await axios.get("/api/campaigns", { withCredentials: true })
+        console.log("the reponse is ", res.data)
+        setCampaigns(res.data)
+      } catch (error) {
+        console.error("Error fetching campaigns:", error)
+      } finally {
+        setLoading(false)
+      }
+    }
 
-  const filteredCampaigns = userCampaigns.filter((campaign) => {
+    fetchCampaigns()
+  }, [])
+
+  const filteredCampaigns = campaigns.filter((campaign) => {
     const matchesSearch = campaign.title.toLowerCase().includes(searchQuery.toLowerCase())
-    const matchesStatus = statusFilter === "all" || campaign.status === statusFilter
+    const matchesStatus = statusFilter === "all" || campaign.status.toLowerCase() === statusFilter
     return matchesSearch && matchesStatus
   })
 
@@ -60,11 +84,13 @@ export default function CampaignsPage() {
         </Select>
       </div>
 
-      {filteredCampaigns.length > 0 ? (
+      {loading ? (
+        <p>Loading campaigns...</p>
+      ) : filteredCampaigns.length > 0 ? (
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {filteredCampaigns.map((campaign, index) => (
             <motion.div
-              key={campaign.id}
+              key={campaign?.id}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.4, delay: index * 0.1 }}
@@ -80,7 +106,7 @@ export default function CampaignsPage() {
             We couldn't find any campaigns matching your criteria.
           </p>
           <Button asChild variant="outline">
-            <Link href="/dashboard/create">Create your first campaign</Link>
+            <Link href="/create">Create your first campaign</Link>
           </Button>
         </div>
       )}
