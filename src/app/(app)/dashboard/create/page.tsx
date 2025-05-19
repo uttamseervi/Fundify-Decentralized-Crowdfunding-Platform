@@ -21,8 +21,8 @@ import Link from "next/link"
 import { useToast } from "@/hooks/use-toast"
 import { useActiveWallet, useSendTransaction } from "thirdweb/react"
 import { getCampaignContract, uploadImageToIPFS } from "@/utils/thirdweb"
-import { prepareContractCall,sendTransaction, waitForReceipt } from "thirdweb"
-import { useAutoConnect } from "thirdweb/react"
+import { prepareContractCall, sendTransaction, waitForReceipt } from "thirdweb"
+// import { useAutoConnect } from "thirdweb/react"
 import { createWallet } from "thirdweb/wallets"
 import { client } from "@/app/client"
 // import 
@@ -33,11 +33,11 @@ export default function CreateCampaignPage() {
   const wallets = [createWallet("io.metamask")];
   const activeWallet = useActiveWallet()
   const contract = getCampaignContract()
-  const { data: autoConnected } = useAutoConnect({
-    client,
-    wallets
-  })
-  console.log("the auto connect is ", autoConnected)
+  // const { data: autoConnected } = useAutoConnect({
+  //   client,
+  //   wallets
+  // })
+  // console.log("the auto connect is ", autoConnected)
   const [isLoading, setIsLoading] = useState(false)
   const [date, setDate] = useState<Date>()
   const [imageFile, setImageFile] = useState<File | null>(null);
@@ -96,39 +96,7 @@ export default function CreateCampaignPage() {
 
       // Prepare contract call parameters
       const deadlineTimestamp = Math.floor(date.getTime() / 1000)
-      const targetAmountInWei = BigInt(Math.floor(goalAmount * 1e18)) // Convert ETH to Wei
-
-      // Verify wallet is connected
-      // if (!activeWallet) {
-      //   toast({
-      //     title: "Error",
-      //     description: "Please connect your wallet first",
-      //     variant: "destructive"
-      //   })
-      //   setIsLoading(false)
-      //   return
-      // }
-      // // Prepare the contract call for creating a campaign
-      // console.log("preparing the transaction call");
-
-      // const transaction = prepareContractCall({
-      //   contract,
-      //   method: "function createCampaign(address owner, address wallet, string title, string description, uint256 goal, uint256 deadline, string image)",
-      //   params: [
-      //     activeWallet.getAccount()?.address || "",
-      //     activeWallet.getAccount()?.address || "",
-      //     formData.title,
-      //     formData.description,
-      //     BigInt(targetAmountInWei),
-      //     BigInt(deadlineTimestamp),
-      //     ipfsUrl,  // 🚨 We'll fix the URL in a sec
-      //   ],
-      // });
-      // console.log("the transaction prep is ", transaction)
-      // await sendTx(transaction)
-      // console.log("the transaction is ", transactionResult?.transactionHash);
-
-
+      const targetAmountInWei = BigInt(Math.floor(goalAmount * 1e18)) 
 
 
       // 👇 Prepare the transaction
@@ -136,8 +104,8 @@ export default function CreateCampaignPage() {
         contract,
         method: "function createCampaign(address owner, address wallet, string title, string description, uint256 goal, uint256 deadline, string image)",
         params: [
-          activeWallet.getAccount()?.address || "",
-          activeWallet.getAccount()?.address || "",
+          activeWallet?.getAdminAccount()?.address,
+          activeWallet.getAccount()?.address,
           formData.title,
           formData.description,
           BigInt(targetAmountInWei),
@@ -151,7 +119,7 @@ export default function CreateCampaignPage() {
       // 👇 Send the transaction using Thirdweb's sendTransaction helper
       const txResult = await sendTransaction({
         transaction: preparedTx,
-        account: activeWallet.getAccount(),
+        account: activeWallet?.getAccount(),
         chain: preparedTx.chain,
         client: preparedTx.client,
       });

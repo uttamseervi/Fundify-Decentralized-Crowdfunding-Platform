@@ -2,16 +2,10 @@
 
 import { motion } from "framer-motion"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Shield, Lock, Zap, BarChart, Users, Globe, ArrowBigLeft } from "lucide-react"
+import { Shield, Lock, Zap, BarChart, Users, Globe, Bolt, Database, ArrowBigLeft } from "lucide-react"
 import Link from "next/link"
 
 export default function HowItWorksPage() {
-  const fadeIn = {
-    initial: { opacity: 0, y: 20 },
-    animate: { opacity: 1, y: 0 },
-    transition: { duration: 0.6 },
-  }
-
   const features = [
     {
       icon: <Shield className="h-10 w-10 text-neutral-700" />,
@@ -49,16 +43,54 @@ export default function HowItWorksPage() {
       description:
         "Anyone with an internet connection and crypto wallet can participate, regardless of location or banking status.",
     },
+    {
+      icon: <Bolt className="h-10 w-10 text-neutral-700" />,
+      title: "Gasless Transactions",
+      description:
+        "If you use our smart wallet, a relayer pays your gas—no ETH required! Your experience is completely fee-free on-chain.",
+    },
+    {
+      icon: <Database className="h-10 w-10 text-neutral-700" />,
+      title: "Standard EOA Fees",
+      description:
+        "Using a regular wallet (EOA) requires you to pay the network gas fees for each transaction.",
+    },
+  ]
+
+  const steps = [
+    {
+      step: "01",
+      title: "Connect Your Wallet",
+      description: "Link your cryptocurrency wallet (EOA or Smart Wallet) to create or support campaigns securely.",
+    },
+    {
+      step: "02",
+      title: "Gas Payment",
+      description:
+        "EOA users pay standard network gas fees. Smart Wallet users enjoy gasless UX—our relayer covers the fees for you.",
+    },
+    {
+      step: "03",
+      title: "Create or Fund",
+      description: "Launch your own campaign or browse existing projects to support with cryptocurrency.",
+    },
+    {
+      step: "04",
+      title: "Transparent Execution",
+      description:
+        "Smart contracts automatically handle funds based on predefined milestones and conditions.",
+    },
   ]
 
   return (
     <div className="bg-[#f7f7f7]">
-        <Link href="/" className="p-2 m-2 hover:underline">
-          <div className="flex flex-row hover:underline ml-8">
-            <span><ArrowBigLeft /> </span>
-            <h4>Go back to home</h4>
-          </div>
-        </Link>
+      <Link href="/" className="p-2 m-2 hover:underline">
+        <div className="flex flex-row hover:underline ml-8">
+          <span><ArrowBigLeft /> </span>
+          <h4>Go back to home</h4>
+        </div>
+      </Link>
+
       {/* Hero Section */}
       <section className="py-20">
         <div className="container max-w-4xl">
@@ -78,7 +110,7 @@ export default function HowItWorksPage() {
         </div>
       </section>
 
-      {/* Mission Statement */}
+      {/* Steps Section */}
       <section className="bg-[#eaeaea] py-16">
         <div className="container max-w-4xl">
           <motion.div
@@ -90,48 +122,23 @@ export default function HowItWorksPage() {
           >
             <h2 className="font-bricolage text-2xl font-bold text-neutral-800 md:text-3xl">Our Mission</h2>
             <p className="mt-4 text-neutral-700">
-              This is a fully decentralized crowdfunding platform designed to eliminate trust barriers. Campaigns are
-              transparent, traceable, and censorship-resistant. All transactions are secured on-chain, ensuring
-              end-to-end accountability for both backers and creators. No intermediaries. No centralized control. Just
-              pure community-driven funding.
+              This is a fully decentralized crowdfunding platform designed to eliminate trust barriers. Campaigns are transparent, traceable, and censorship-resistant. All transactions are secured on-chain, ensuring end-to-end accountability for both backers and creators. No intermediaries. No centralized control. Just pure community-driven funding.
             </p>
           </motion.div>
-        </div>
-      </section>
 
-      {/* How It Works Steps */}
-      <section className="py-16">
-        <div className="container">
           <motion.div
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
             transition={{ duration: 0.5 }}
             viewport={{ once: true }}
-            className="mb-12 text-center"
+            className="mt-12 text-center"
           >
             <h2 className="font-bricolage text-3xl font-bold text-neutral-800">How It Works</h2>
             <p className="mt-4 text-neutral-600">The decentralized approach to bringing ideas to life</p>
           </motion.div>
 
-          <div className="grid gap-8 md:grid-cols-3">
-            {[
-              {
-                step: "01",
-                title: "Connect Your Wallet",
-                description: "Link your cryptocurrency wallet to create or support campaigns securely.",
-              },
-              {
-                step: "02",
-                title: "Create or Fund",
-                description: "Launch your own campaign or browse existing projects to support with cryptocurrency.",
-              },
-              {
-                step: "03",
-                title: "Transparent Execution",
-                description:
-                  "Smart contracts automatically handle funds based on predefined milestones and conditions.",
-              },
-            ].map((step, index) => (
+          <div className="grid gap-8 mt-8 md:grid-cols-4">
+            {steps.map((step, index) => (
               <motion.div
                 key={index}
                 initial={{ opacity: 0, y: 20 }}
@@ -150,7 +157,7 @@ export default function HowItWorksPage() {
       </section>
 
       {/* Key Features */}
-      <section className="bg-[#eaeaea] py-16">
+      <section className="py-16">
         <div className="container">
           <motion.div
             initial={{ opacity: 0 }}
@@ -188,7 +195,7 @@ export default function HowItWorksPage() {
       </section>
 
       {/* FAQ Section */}
-      <section className="py-16">
+      <section className="bg-[#eaeaea] py-16">
         <div className="container max-w-4xl">
           <motion.div
             initial={{ opacity: 0 }}
@@ -202,84 +209,50 @@ export default function HowItWorksPage() {
           </motion.div>
 
           <div className="space-y-6">
-            {[
-              {
-                question: "What cryptocurrencies can I use?",
-                answer:
-                  "Our platform currently supports Ethereum (ETH) and ERC-20 tokens. We plan to expand to additional blockchains in the future.",
-              },
-              {
-                question: "How are funds protected?",
-                answer:
-                  "All funds are held in smart contracts that execute based on predefined conditions. Neither we nor campaign creators can access funds until those conditions are met.",
-              },
-              {
-                question: "What happens if a campaign doesn't reach its goal?",
-                answer:
-                  "If a campaign doesn't reach its funding goal by the deadline, all contributions are automatically returned to the respective backers.",
-              },
-              {
-                question: "Are there any fees?",
-                answer:
-                  "The platform charges a minimal 2% fee on successfully funded campaigns to cover operational costs. Standard network transaction fees also apply.",
-              },
-              {
-                question: "How is this different from traditional crowdfunding?",
-                answer:
-                  "Traditional platforms act as intermediaries, holding funds and taking higher fees. Our decentralized approach connects creators and backers directly through smart contracts, offering greater transparency, lower fees, and automated accountability.",
-              },
-            ].map((faq, index) => (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
-                viewport={{ once: true }}
-              >
-                <Card className="border-none bg-[#f3f4f6] shadow-sm">
-                  <CardHeader>
-                    <CardTitle className="text-lg text-neutral-800">{faq.question}</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-neutral-600">{faq.answer}</p>
-                  </CardContent>
-                </Card>
-              </motion.div>
-            ))}
+            <Card className="border-none bg-[#f3f4f6] shadow-sm">
+              <CardHeader>
+                <CardTitle className="text-lg text-neutral-800">Why do I pay gas fees?</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-neutral-600">
+                  If you connect with a standard wallet (EOA), you cover the network transaction fees (gas) directly from your ETH balance. Transactions won’t proceed without enough ETH.
+                </p>
+              </CardContent>
+            </Card>
+            <Card className="border-none bg-[#f3f4f6] shadow-sm">
+              <CardHeader>
+                <CardTitle className="text-lg text-neutral-800">What about gasless transactions?</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-neutral-600">
+                  Connecting via our Smart Wallet leverages meta-transactions (EIP-4337) where a relayer pays the gas on your behalf via <code>handleOps</code>. You don’t need ETH; the relayer is reimbursed off-chain or via token deductions.
+                </p>
+              </CardContent>
+            </Card>
           </div>
         </div>
       </section>
 
       {/* CTA Section */}
-      <section className="bg-neutral-800 py-16 text-white">
-        <div className="container text-center">
+      <section className="py-16 text-center">
+        <div className="container max-w-lg mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
             viewport={{ once: true }}
           >
-            <h2 className="font-bricolage text-3xl font-bold md:text-4xl">Ready to Join the Revolution?</h2>
-            <p className="mx-auto mt-4 max-w-2xl text-neutral-300">
-              Experience the future of crowdfunding with complete transparency, security, and control.
+            <h2 className="font-bricolage text-3xl font-bold text-neutral-800 mb-4">Ready to Join the Revolution?</h2>
+            <p className="text-neutral-600 mb-8">
+              Experience the future of crowdfunding—with or without ETH in your wallet.
             </p>
-            <div className="mt-8 flex flex-col items-center justify-center gap-4 sm:flex-row">
-              <motion.a
-                href="/campaigns"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className="rounded-md bg-[#4c6ef5] px-6 py-3 font-medium text-white shadow-sm transition-colors hover:bg-[#4c6ef5]/90"
-              >
+            <div className="flex flex-col items-center justify-center gap-4 sm:flex-row">
+              <Link href="/campaigns" className="rounded-md bg-[#4c6ef5] px-6 py-3 font-medium text-white shadow-sm hover:bg-[#4c6ef5]/90">
                 Explore Campaigns
-              </motion.a>
-              <motion.a
-                href="/auth"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className="rounded-md bg-neutral-700 px-6 py-3 font-medium text-white shadow-sm transition-colors hover:bg-neutral-600"
-              >
+              </Link>
+              <Link href="/auth" className="rounded-md bg-neutral-700 px-6 py-3 font-medium text-white shadow-sm hover:bg-neutral-600">
                 Connect Wallet
-              </motion.a>
+              </Link>
             </div>
           </motion.div>
         </div>

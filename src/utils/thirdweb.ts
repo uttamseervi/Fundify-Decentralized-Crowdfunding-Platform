@@ -15,11 +15,15 @@ export const getCampaignContract = (): any => {
     return contract
 }
 
-// Export a function for IPFS storage (optional)
 export const uploadImageToIPFS = async (imageFile: File): Promise<string> => {
     const storage = new ThirdwebStorage({
-        clientId: process.env.NEXT_PUBLIC_TEMPLATE_CLIENT_ID,
-    })
-    const cid = await storage.upload(imageFile)
-    return `https://ipfs.io/ipfs/${cid}`
-}
+        clientId: process.env.NEXT_PUBLIC_TEMPLATE_CLIENT_ID!,
+    });
+
+    const ipfsUri = await storage.upload(imageFile); // returns ipfs://CID/filename.png
+
+    // Replace 'ipfs://' with working gateway
+    const gatewayUrl = ipfsUri.replace("ipfs://", "https://ipfs.io/ipfs/");
+
+    return gatewayUrl;
+};

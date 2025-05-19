@@ -1,6 +1,6 @@
 import type React from "react"
 import type { Metadata } from "next"
-import { Space_Grotesk, Bricolage_Grotesque } from "next/font/google"
+import { Space_Grotesk } from "next/font/google"
 import "./globals.css"
 
 import { ThirdwebProvider } from "thirdweb/react";
@@ -12,11 +12,6 @@ import { StoreProvider } from "@/store/storeProvider";
 const spaceGrotesk = Space_Grotesk({
   subsets: ["latin"],
   variable: "--font-space-grotesk",
-})
-
-const bricolage = Bricolage_Grotesque({
-  subsets: ["latin"],
-  variable: "--font-bricolage",
 })
 
 export const metadata: Metadata = {
@@ -32,7 +27,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${spaceGrotesk.variable} ${bricolage.variable} font-sans bg-[#f7f7f7]`}>
+      <body className={`${spaceGrotesk.variable} font-sans bg-[#f7f7f7]`}>
         <StoreProvider>
           <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false}>
             <ThirdwebProvider>

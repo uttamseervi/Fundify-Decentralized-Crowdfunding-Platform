@@ -18,13 +18,10 @@ import Link from "next/link"
 import { Campaign } from "@/lib/types"
 
 export default function CampaignsPage() {
-
-
   const [campaigns, setCampaigns] = useState<Campaign[]>([])
   const [searchQuery, setSearchQuery] = useState("")
   const [statusFilter, setStatusFilter] = useState("all")
   const [loading, setLoading] = useState(true)
-
   useEffect(() => {
     const fetchCampaigns = async () => {
       try {

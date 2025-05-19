@@ -20,7 +20,7 @@ const sidebarLinks = [
   },
   {
     title: "Create Campaign",
-    href: "/create",
+    href: "/dashboard/create",
     icon: PlusCircle,
   },
   {

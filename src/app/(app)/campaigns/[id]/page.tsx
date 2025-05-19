@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useMemo } from "react"
 import { useParams, useRouter } from "next/navigation"
 import { motion } from "framer-motion"
 import Image from "next/image"
@@ -18,36 +18,91 @@ import { Separator } from "@/components/ui/separator"
 import { useToast } from "@/hooks/use-toast"
 import { campaigns } from "@/lib/data"
 import CampaignCard from "@/components/campaign-card"
+import { getCampaignContract } from "@/utils/thirdweb"
+import { prepareContractCall, resolveMethod } from "thirdweb";
+import { toWei,toEther } from "thirdweb/utils";
+import { useActiveWallet, useReadContract } from "thirdweb/react"
 
 export default function CampaignDetailPage() {
     const params = useParams()
     const router = useRouter()
     const { toast } = useToast()
-    const [campaign, setCampaign] = useState<any>(null)
+    const [campaign, setCampaign] = useState<any>()
     const [isLoading, setIsLoading] = useState(false)
     const [contributionAmount, setContributionAmount] = useState("0.1")
     const [isLoggedIn, setIsLoggedIn] = useState(false)
+    const contract = getCampaignContract()
+    const activeWallet = useActiveWallet()
 
     useEffect(() => {
-        // Check if user is logged in
-        const walletAddress = localStorage.getItem("walletAddress")
-        setIsLoggedIn(!!walletAddress)
-
-        // Find campaign by ID
-        const campaignId = params.id as string
-        const foundCampaign = campaigns.find((c) => c.id === campaignId)
-
-        if (foundCampaign) {
-            setCampaign(foundCampaign)
-        } else {
-            // Campaign not found, redirect back to campaigns
-            router.push("/campaigns")
+        if (!activeWallet) {
+            setIsLoading(false);
         }
-    }, [params.id, router])
+    }, [activeWallet, router,])
+    const { data } = useReadContract({
+        contract,
+        method: resolveMethod("getCampaigns"),
+        params: [],
+    })
+    console.log("the campaigns list are ", data)
+
+    // Normalize and parse campaign data from contract
+    const parsedCampaigns = useMemo(() => {
+        if (!data) return []
+
+        return data.map((c: any, index: number) => {
+            const deadline = Number(c.deadline)
+            const now = Math.floor(Date.now() / 1000)
+            const daysLeft = Math.max(0, Math.ceil((deadline - now) / (60 * 60 * 24)))
+            return {
+                id: Number(c.campaignId),
+                title: c.title,
+                description: c.description,
+                image: c.image.startsWith("ipfs://")
+                    ? c.image.replace("ipfs://", "https://ipfs.io/ipfs/")
+                    : c.image,
+                target: Number(c.target),
+                deadline,
+                amountCollected: toEther(c.amountCollected),
+                owner: c.owner,
+                smartWallet: c.smartWallet,
+                donations: c.donations,
+                donators: c.donators,
+                category: c.category || "uncategorized", // Assuming your smart contract includes category
+                // Add required Campaign fields
+                goal: toEther(c.target),
+                raised: toEther(c.amountCollected),
+                daysLeft,
+                creator: c.owner,
+                status: deadline < now
+                    ? "ended"
+                    : Number(c.amountCollected) >= Number(c.target)
+                        ? "successful"
+                        : "active",
+            }
+        })
+    }, [data])
+    useEffect(() => {
+        if (!params?.id || !parsedCampaigns.length) return;
+
+        const campaignId = parseInt(params.id as string);
+        const matchedCampaign = parsedCampaigns.find(c => c.id === campaignId);
+
+        if (matchedCampaign) {
+            setCampaign(matchedCampaign);
+        } else {
+            toast({
+                title: "Campaign not found",
+                description: "The campaign you're looking for doesn't exist.",
+                variant: "destructive",
+            });
+        }
+    }, [params?.id, parsedCampaigns]);
+
+
 
     const handleContribute = async (e: React.FormEvent) => {
         e.preventDefault()
-
         if (!isLoggedIn) {
             toast({
                 title: "Wallet not connected",
@@ -58,9 +113,6 @@ export default function CampaignDetailPage() {
         }
 
         setIsLoading(true)
-
-        // Simulate API call
-        await new Promise((resolve) => setTimeout(resolve, 1500))
 
         toast({
             title: "Contribution successful!",
@@ -199,17 +251,13 @@ export default function CampaignDetailPage() {
                                                 lasting change.
                                             </p>
                                             <h3 className="text-xl font-bold text-neutral-800">The Problem</h3>
-                                            <p>
-                                                In today's rapidly changing world, we face numerous challenges that require creative thinking
+                                            <p>In today&rsquo;s rapidly changing world, we face numerous challenges that require creative thinking
                                                 and collective action. Our project focuses on developing sustainable solutions that not only
-                                                address immediate needs but also contribute to long-term positive outcomes.
-                                            </p>
+                                                address immediate needs but also contribute to long-term positive outcomes.</p>
                                             <h3 className="text-xl font-bold text-neutral-800">Our Solution</h3>
-                                            <p>
-                                                We've developed a comprehensive approach that leverages cutting-edge technology and
+                                            <p>We&rsquo;ve developed a comprehensive approach that leverages cutting-edge technology and
                                                 community-driven initiatives. By combining these elements, we can create a scalable and
-                                                effective solution that benefits everyone involved.
-                                            </p>
+                                                effective solution that benefits everyone involved.</p>
                                             <h3 className="text-xl font-bold text-neutral-800">How Funds Will Be Used</h3>
                                             <ul>
                                                 <li>Research and development: 40%</li>
@@ -220,7 +268,7 @@ export default function CampaignDetailPage() {
                                             <h3 className="text-xl font-bold text-neutral-800">Timeline</h3>
                                             <p>
                                                 Our project will be implemented in phases, with regular updates provided to all supporters.
-                                                We're committed to transparency and accountability throughout the process.
+                                                We&rsquo;re committed to transparency and accountability throughout the process.
                                             </p>
                                         </div>
 
@@ -250,11 +298,11 @@ export default function CampaignDetailPage() {
                                             </CardHeader>
                                             <CardContent>
                                                 <p className="text-neutral-700">
-                                                    We're excited to announce that we've reached our first milestone! Thanks to your generous
-                                                    support, we've been able to complete the initial phase of our project ahead of schedule.
+                                                    We&rsquo;re excited to announce that we&rsquo;ve reached our first milestone! Thanks to your generous
+                                                    support, we&rsquo;ve been able to complete the initial phase of our project ahead of schedule.
                                                 </p>
                                                 <p className="mt-4 text-neutral-700">
-                                                    Next steps include finalizing our prototype and beginning user testing. We'll keep you updated
+                                                    Next steps include finalizing our prototype and beginning user testing. We&rsquo;ll keep you updated
                                                     on our progress.
                                                 </p>
                                             </CardContent>
@@ -271,15 +319,16 @@ export default function CampaignDetailPage() {
                                             </CardHeader>
                                             <CardContent>
                                                 <p className="text-neutral-700">
-                                                    Today marks the official launch of our campaign! We're thrilled to embark on this journey and
+                                                    Today marks the official launch of our campaign! We&apos;re thrilled to embark on this journey and
                                                     grateful for your interest and support.
                                                 </p>
                                                 <p className="mt-4 text-neutral-700">
-                                                    Our team has been working tirelessly to prepare for this moment, and we're confident that
+                                                    Our team has been working tirelessly to prepare for this moment, and we&apos;re confident that
                                                     together, we can achieve our goals and make a real difference.
                                                 </p>
                                             </CardContent>
                                         </Card>
+
                                     </div>
                                 </TabsContent>
 
@@ -340,9 +389,10 @@ export default function CampaignDetailPage() {
                                                         </div>
                                                     </div>
                                                     <p className="mt-3 text-neutral-700">
-                                                        This is exactly the kind of innovation we need right now. I'm excited to see how this
+                                                        This is exactly the kind of innovation we need right now. I&apos;m excited to see how this
                                                         project develops!
                                                     </p>
+
                                                 </div>
 
                                                 <div className="rounded-lg bg-white p-4 shadow-sm">
@@ -359,10 +409,11 @@ export default function CampaignDetailPage() {
                                                     </p>
                                                     <div className="mt-4 rounded-lg bg-[#f3f4f6] p-3">
                                                         <p className="text-sm text-neutral-600">
-                                                            <span className="font-medium text-neutral-800">Creator Response:</span> Yes, we're
-                                                            planning a beta testing phase in month 3 of our timeline. We'll be reaching out to early
+                                                            <span className="font-medium text-neutral-800">Creator Response:</span> Yes, we&apos;re
+                                                            planning a beta testing phase in month 3 of our timeline. We&apos;ll be reaching out to early
                                                             supporters for participation!
                                                         </p>
+
                                                     </div>
                                                 </div>
                                             </div>
