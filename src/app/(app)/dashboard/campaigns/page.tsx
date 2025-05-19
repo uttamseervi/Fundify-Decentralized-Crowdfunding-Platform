@@ -100,8 +100,9 @@ export default function CampaignsPage() {
         <div className="flex h-[300px] flex-col items-center justify-center rounded-lg border border-dashed bg-background p-8 text-center">
           <h3 className="mt-4 text-lg font-medium">No campaigns found</h3>
           <p className="mb-4 mt-2 text-sm text-muted-foreground">
-            We couldn't find any campaigns matching your criteria.
+            We couldn&rsquo;t find any campaigns matching your criteria.
           </p>
+
           <Button asChild variant="outline">
             <Link href="/create">Create your first campaign</Link>
           </Button>

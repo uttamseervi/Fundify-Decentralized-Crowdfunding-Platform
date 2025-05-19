@@ -6,14 +6,15 @@ import CampaignCard from "@/components/campaign-card"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { ArrowBigLeft, Search } from "lucide-react"
+import { campaigns } from "@/lib/data"
 import Link from "next/link"
 import { useReadContract } from "thirdweb/react"
-import { resolveMethod } from "thirdweb"
+import { resolveMethod } from "thirdweb";
 import { getCampaignContract } from "@/utils/thirdweb"
+import { toEther } from "thirdweb/utils"
 
 export default function CampaignsPage() {
   const [searchQuery, setSearchQuery] = useState("")
-  const [category, setCategory] = useState("all")
 
   const contract = getCampaignContract()
 
@@ -33,7 +34,7 @@ export default function CampaignsPage() {
       const now = Math.floor(Date.now() / 1000)
       const daysLeft = Math.max(0, Math.ceil((deadline - now) / (60 * 60 * 24)))
       return {
-        id: Number(c.campaignId),
+        id: String(c.campaignId),
         title: c.title,
         description: c.description,
         image: c.image.startsWith("ipfs://")
@@ -41,22 +42,20 @@ export default function CampaignsPage() {
           : c.image,
         target: Number(c.target),
         deadline,
-        amountCollected: Number(c.amountCollected),
+        amountCollected: toEther(c.amountCollected),
         owner: c.owner,
         smartWallet: c.smartWallet,
         donations: c.donations,
         donators: c.donators,
-        category: c.category || "uncategorized", // Assuming your smart contract includes category
-        // Add required Campaign fields
-        goal: Number(c.target),
-        raised: Number(c.amountCollected),
+        goal: toEther(c.target),
+        raised: toEther(c.amountCollected),
         daysLeft,
         creator: c.owner,
-        status: deadline < now
-          ? "ended"
-          : Number(c.amountCollected) >= Number(c.target)
-            ? "successful"
-            : "active",
+        status: (deadline < now
+          ? "expired"
+          : toEther(c.amountCollected) >= toEther(c.target)
+            ? "completed"
+            : "active") as "expired" | "completed" | "active",
       }
     })
   }, [data])
@@ -66,11 +65,10 @@ export default function CampaignsPage() {
     const matchesSearch =
       campaign.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       campaign.description.toLowerCase().includes(searchQuery.toLowerCase())
-    const matchesCategory = category === "all" || campaign.category === category
-    return matchesSearch && matchesCategory
+    return matchesSearch 
   })
 
-  const categories = ["all", "technology", "art", "community", "education", "environment"]
+  // const categories = ["all", "technology", "art", "community", "education", "environment"]
 
   return (
     <div className="container py-12">
@@ -80,7 +78,6 @@ export default function CampaignsPage() {
           <h4>Go back to home</h4>
         </div>
       </Link>
-
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -103,26 +100,11 @@ export default function CampaignsPage() {
             onChange={(e) => setSearchQuery(e.target.value)}
           />
         </div>
-        <div className="flex flex-wrap gap-2">
-          {categories.map((cat) => (
-            <Button
-              key={cat}
-              variant={category === cat ? "default" : "outline"}
-              size="sm"
-              onClick={() => setCategory(cat)}
-              className="capitalize"
-            >
-              {cat}
-            </Button>
-          ))}
-        </div>
       </div>
 
       {/* Campaign Grid */}
       <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-        {isLoading ? (
-          <p className="col-span-full text-center text-gray-500">Loading campaigns...</p>
-        ) : filteredCampaigns.length > 0 ? (
+        {filteredCampaigns.length > 0 ? (
           filteredCampaigns.map((campaign, index) => (
             <motion.div
               key={campaign.id}
@@ -140,7 +122,6 @@ export default function CampaignsPage() {
               variant="link"
               onClick={() => {
                 setSearchQuery("")
-                setCategory("all")
               }}
             >
               Clear filters

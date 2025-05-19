@@ -97,21 +97,27 @@ export default function LandingPage() {
                 transition={{ duration: 0.5 }}
                 viewport={{ once: true }}
               >
-                <h2 className="font-bricolage text-3xl font-bold text-neutral-800 md:text-4xl">About the Platform</h2>
+                <h2 className="font-bricolage text-3xl font-bold text-neutral-800 md:text-4xl">
+                  About the Platform
+                </h2>
+
                 <p className="mt-4 text-neutral-600">
                   Fundify is a global decentralized crowdfunding platform that connects creators with backers. We believe
-                  that great ideas can come from anywhere, and we're committed to helping creators bring their visions to
+                  that great ideas can come from anywhere, and we&rsquo;re committed to helping creators bring their visions to
                   life.
                 </p>
+
                 <p className="mt-4 text-neutral-600">
-                  Our platform provides the tools and resources needed to run a successful campaign, from campaign
-                  creation to fulfillment. We've helped thousands of creators raise millions in cryptocurrency for their
+                  Our platform provides the tools and resources needed to run a successful campaign&mdash;from campaign
+                  creation to fulfillment. We&rsquo;ve helped thousands of creators raise millions in cryptocurrency for their
                   projects.
                 </p>
+
                 <Button asChild className="mt-6 rounded-md bg-[#4c6ef5] hover:bg-[#4c6ef5]/90">
                   <Link href="/campaigns">Discover Projects</Link>
                 </Button>
               </motion.div>
+
               <motion.div
                 initial={{ opacity: 0, x: 20 }}
                 whileInView={{ opacity: 1, x: 0 }}
@@ -135,32 +141,36 @@ export default function LandingPage() {
               viewport={{ once: true }}
               className="mb-12 text-center"
             >
-              <h2 className="font-bricolage text-3xl font-bold text-neutral-800 md:text-4xl">What Creators Say</h2>
-              <p className="mt-4 text-neutral-600">Hear from the creators who've successfully funded their projects</p>
+              <h2 className="font-bricolage text-3xl font-bold text-neutral-800 md:text-4xl">
+                What Creators Say
+              </h2>
+              <p className="mt-4 text-neutral-600">
+                Hear from the creators who&rsquo;ve successfully funded their projects
+              </p>
             </motion.div>
 
             <div className="grid gap-8 md:grid-cols-3">
               {[
                 {
                   quote:
-                    "Fundify helped me turn my idea into a thriving business. The platform was easy to use and the community was incredibly supportive.",
-                  name: "Sarah Johnson",
-                  role: "Tech Entrepreneur",
-                  image: "",
+                    'Fundify helped me turn my idea into a thriving business. The platform was easy to use and the community was incredibly supportive.',
+                  name: 'Sarah Johnson',
+                  role: 'Tech Entrepreneur',
+                  image: '', // Replace with real image URLs later
                 },
                 {
                   quote:
-                    "I was able to fund my documentary film in just 30 days. The exposure I got through Fundify was invaluable.",
-                  name: "Michael Chen",
-                  role: "Filmmaker",
-                  image: "",
+                    'I was able to fund my documentary film in just 30 days. The exposure I got through Fundify was invaluable.',
+                  name: 'Michael Chen',
+                  role: 'Filmmaker',
+                  image: '',
                 },
                 {
                   quote:
-                    "As a first-time creator, I was nervous about launching a campaign. Fundify made the process simple and straightforward.",
-                  name: "Emma Rodriguez",
-                  role: "Product Designer",
-                  image: "",
+                    'As a first-time creator, I was nervous about launching a campaign. Fundify made the process simple and straightforward.',
+                  name: 'Emma Rodriguez',
+                  role: 'Product Designer',
+                  image: '',
                 },
               ].map((testimonial, index) => (
                 <motion.div
@@ -171,15 +181,21 @@ export default function LandingPage() {
                   viewport={{ once: true }}
                   className="flex flex-col rounded-lg bg-[#f3f4f6] p-8 shadow-sm"
                 >
-                  <p className="mb-6 text-neutral-600">"{testimonial.quote}"</p>
+                  <p className="mb-6 text-neutral-600">&ldquo;{testimonial.quote}&rdquo;</p>
                   <div className="mt-auto flex items-center">
-                    <div className="relative h-12 w-12 overflow-hidden rounded-full">
-                      <Image
-                        src={testimonial.image || ""}
-                        alt={testimonial.name}
-                        fill
-                        className="object-cover"
-                      />
+                    <div className="relative h-12 w-12 overflow-hidden rounded-full bg-neutral-300">
+                      {testimonial.image ? (
+                        <Image
+                          src={testimonial.image}
+                          alt={`${testimonial.name}'s profile picture`}
+                          fill
+                          className="object-cover"
+                        />
+                      ) : (
+                        <span className="flex h-full w-full items-center justify-center text-sm text-neutral-500">
+                          {testimonial.name.charAt(0)}
+                        </span>
+                      )}
                     </div>
                     <div className="ml-4">
                       <h4 className="font-bold text-neutral-800">{testimonial.name}</h4>
@@ -191,6 +207,7 @@ export default function LandingPage() {
             </div>
           </div>
         </section>
+
 
         {/* CTA Section */}
         <section className="bg-neutral-800 py-20 text-white">

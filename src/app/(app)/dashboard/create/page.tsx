@@ -96,7 +96,7 @@ export default function CreateCampaignPage() {
 
       // Prepare contract call parameters
       const deadlineTimestamp = Math.floor(date.getTime() / 1000)
-      const targetAmountInWei = BigInt(Math.floor(goalAmount * 1e18)) 
+      const targetAmountInWei = BigInt(Math.floor(goalAmount * 1e18))
 
 
       // 👇 Prepare the transaction
@@ -104,8 +104,8 @@ export default function CreateCampaignPage() {
         contract,
         method: "function createCampaign(address owner, address wallet, string title, string description, uint256 goal, uint256 deadline, string image)",
         params: [
-          activeWallet?.getAdminAccount()?.address,
-          activeWallet.getAccount()?.address,
+          activeWallet?.getAdminAccount?.()?.address || "",
+          activeWallet?.getAccount()?.address || "",
           formData.title,
           formData.description,
           BigInt(targetAmountInWei),

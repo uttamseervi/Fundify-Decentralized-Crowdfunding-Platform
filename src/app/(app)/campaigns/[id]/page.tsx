@@ -20,7 +20,7 @@ import { campaigns } from "@/lib/data"
 import CampaignCard from "@/components/campaign-card"
 import { getCampaignContract } from "@/utils/thirdweb"
 import { prepareContractCall, resolveMethod } from "thirdweb";
-import { toWei,toEther } from "thirdweb/utils";
+import { toWei, toEther } from "thirdweb/utils";
 import { useActiveWallet, useReadContract } from "thirdweb/react"
 
 export default function CampaignDetailPage() {
@@ -38,7 +38,7 @@ export default function CampaignDetailPage() {
         if (!activeWallet) {
             setIsLoading(false);
         }
-    }, [activeWallet, router,])
+    }, [activeWallet, router, toast])
     const { data } = useReadContract({
         contract,
         method: resolveMethod("getCampaigns"),
@@ -555,23 +555,6 @@ export default function CampaignDetailPage() {
                                 </CardContent>
                             </Card>
                         </motion.div>
-                    </div>
-                </div>
-
-                {/* Related Campaigns */}
-                <div className="mt-16">
-                    <h2 className="mb-6 font-bricolage text-2xl font-bold text-neutral-800">Similar Campaigns</h2>
-                    <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-                        {relatedCampaigns.map((relatedCampaign) => (
-                            <motion.div
-                                key={relatedCampaign.id}
-                                initial={{ opacity: 0, y: 20 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ duration: 0.5 }}
-                            >
-                                <CampaignCard campaign={relatedCampaign} />
-                            </motion.div>
-                        ))}
                     </div>
                 </div>
             </div>
