@@ -7,7 +7,6 @@ export interface Campaign {
   raised: number
   daysLeft: number
   creator: string
-  category: string
   status: "active" | "completed" | "expired"
 }
 

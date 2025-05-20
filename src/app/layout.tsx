@@ -7,6 +7,7 @@ import { ThirdwebProvider } from "thirdweb/react";
 import { ThemeProvider } from "@/components/theme-provider"
 
 import { StoreProvider } from "@/store/storeProvider";
+import { Toaster } from "@/components/ui/toaster";
 
 
 const spaceGrotesk = Space_Grotesk({
@@ -34,6 +35,7 @@ export default function RootLayout({
               <div className="flex min-h-screen flex-col">
                 <main className="flex-1">
                   {children}
+                  <Toaster />
                 </main>
               </div>
             </ThirdwebProvider>

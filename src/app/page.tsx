@@ -14,17 +14,38 @@ export default function LandingPage() {
       <div className="flex flex-col">
         {/* Hero Section */}
         <section className="relative flex min-h-[90vh] flex-col items-center justify-center overflow-hidden bg-[#f3f4f6] px-4 py-20 text-center md:py-32">
+          {/* Glowing, Fast-Animated Blobs */}
+          <motion.div
+            className="absolute top-10 left-[-25%] w-96 h-96 rounded-full bg-gradient-to-tr from-[#4c6ef5] to-[#3bc9db] opacity-40 filter blur-3xl shadow-[0_0_50px_rgba(76,110,245,0.6)]"
+            animate={{ rotate: 360, scale: [1, 1.05, 1] }}
+            transition={{ repeat: Infinity, duration: 15, ease: "linear" }}
+          />
 
+          <motion.div
+            className="absolute bottom-0 right-[-15%] w-[550px] h-[550px] rounded-full bg-gradient-to-br from-[#845ef7] to-[#5c7cfa] opacity-35 filter blur-4xl shadow-[0_0_60px_rgba(132,94,247,0.5)]"
+            animate={{ scale: [1, 1.15, 1], rotate: [0, 60, 0] }}
+            transition={{ repeat: Infinity, duration: 12, ease: "easeInOut" }}
+          />
+
+          <motion.div
+            className="absolute top-1/2 right-1/3 w-80 h-80 rounded-full bg-gradient-to-l from-[#ffd43b] to-[#ff6b6b] opacity-30 filter blur-2xl shadow-[0_0_40px_rgba(255,214,59,0.4)]"
+            animate={{ x: [0, 80, 0], y: [0, -50, 0], scale: [1, 1.1, 1] }}
+            transition={{ repeat: Infinity, duration: 10, ease: "easeInOut" }}
+          />
+
+          {/* Content */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
-            className="container max-w-4xl"
+            className="relative z-10 container max-w-4xl"
           >
             <h1 className="font-bricolage text-4xl font-bold tracking-tight text-neutral-800 sm:text-5xl md:text-6xl lg:text-7xl">
               Power the Ideas of Tomorrow
             </h1>
-            <p className="mt-6 text-lg text-neutral-600 md:text-xl">Fund, Support, and Launch Ideas Worldwide</p>
+            <p className="mt-6 text-lg text-neutral-600 md:text-xl">
+              Fund, Support, and Launch Ideas Worldwide
+            </p>
             <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
               <Button asChild size="lg" className="rounded-md bg-[#4c6ef5] px-8 hover:bg-[#4c6ef5]/90">
                 <Link href="/campaigns">

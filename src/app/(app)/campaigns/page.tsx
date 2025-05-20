@@ -5,31 +5,34 @@ import { motion } from "framer-motion"
 import CampaignCard from "@/components/campaign-card"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
-import { ArrowBigLeft, Search } from "lucide-react"
+import { ArrowBigLeft, ArrowLeft, Search } from "lucide-react"
 import { campaigns } from "@/lib/data"
 import Link from "next/link"
 import { useReadContract } from "thirdweb/react"
 import { resolveMethod } from "thirdweb";
 import { getCampaignContract } from "@/utils/thirdweb"
 import { toEther } from "thirdweb/utils"
+import ConnectionButton from "@/app/auth/connection-button"
+import { useRouter } from "next/navigation"
 
 export default function CampaignsPage() {
   const [searchQuery, setSearchQuery] = useState("")
+  const router = useRouter()
 
   const contract = getCampaignContract()
 
-  const { data, isLoading } = useReadContract({
+  const { data: campaignData, isLoading: contractLoading } = useReadContract({
     contract,
-    method: resolveMethod("getCampaigns"),
+    method: resolveMethod("getCampaigns") as unknown as string,
     params: [],
   })
-  console.log("the campaigns list are ", data)
+  console.log("the campaigns list are ", campaignData)
 
   // Normalize and parse campaign data from contract
   const parsedCampaigns = useMemo(() => {
-    if (!data) return []
+    if (!campaignData) return []
 
-    return data.map((c: any, index: number) => {
+    return campaignData.map((c: any, index: number) => {
       const deadline = Number(c.deadline)
       const now = Math.floor(Date.now() / 1000)
       const daysLeft = Math.max(0, Math.ceil((deadline - now) / (60 * 60 * 24)))
@@ -47,8 +50,8 @@ export default function CampaignsPage() {
         smartWallet: c.smartWallet,
         donations: c.donations,
         donators: c.donators,
-        goal: toEther(c.target),
-        raised: toEther(c.amountCollected),
+        goal: Number(toEther(c.target)),
+        raised: Number(toEther(c.amountCollected)),
         daysLeft,
         creator: c.owner,
         status: (deadline < now
@@ -58,26 +61,31 @@ export default function CampaignsPage() {
             : "active") as "expired" | "completed" | "active",
       }
     })
-  }, [data])
+  }, [campaignData])
 
   // Filter logic
   const filteredCampaigns = parsedCampaigns.filter((campaign) => {
     const matchesSearch =
       campaign.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       campaign.description.toLowerCase().includes(searchQuery.toLowerCase())
-    return matchesSearch 
+    return matchesSearch
   })
 
   // const categories = ["all", "technology", "art", "community", "education", "environment"]
 
   return (
     <div className="container py-12">
-      <Link href="/" className="p-2 m-2 hover:underline">
-        <div className="flex flex-row hover:underline">
-          <ArrowBigLeft />
-          <h4>Go back to home</h4>
-        </div>
-      </Link>
+      <div className="container flex flex-row justify-between">
+        <Button
+          variant="ghost"
+          className="mb-6 flex items-center gap-2 text-neutral-700 hover:bg-neutral-200/70 hover:text-neutral-900"
+          onClick={() => router.back()}
+        >
+          <ArrowLeft className="h-4 w-4" />
+          Back to Home
+        </Button>
+        <ConnectionButton />
+      </div>
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -117,14 +125,14 @@ export default function CampaignsPage() {
           ))
         ) : (
           <div className="col-span-full py-12 text-center">
-            <p className="text-lg text-gray-500">No campaigns found matching your criteria.</p>
+            <p className="text-lg text-gray-500">No campaigns found.</p>
             <Button
               variant="link"
               onClick={() => {
                 setSearchQuery("")
               }}
             >
-              Clear filters
+              No Campaigns
             </Button>
           </div>
         )}

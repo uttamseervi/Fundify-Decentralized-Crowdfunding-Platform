@@ -7,11 +7,14 @@ import { motion } from "framer-motion";
 import { Menu, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useSelector } from "react-redux";
+import { useActiveWallet } from "thirdweb/react";
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const activeWallet = useActiveWallet()
+  console.log("the active wallet is ", activeWallet)
   const router = useRouter();
 
 

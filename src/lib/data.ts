@@ -11,7 +11,6 @@ export const campaigns: Campaign[] = [
     raised: 8.5,
     daysLeft: 15,
     creator: "0x1a2b3c...",
-    category: "technology",
     status: "active",
   },
   {
@@ -24,7 +23,6 @@ export const campaigns: Campaign[] = [
     raised: 3.2,
     daysLeft: 20,
     creator: "0x4d5e6f...",
-    category: "community",
     status: "active",
   },
   {
@@ -37,7 +35,6 @@ export const campaigns: Campaign[] = [
     raised: 15,
     daysLeft: 0,
     creator: "0x7g8h9i...",
-    category: "education",
     status: "completed",
   },
   {
@@ -50,7 +47,6 @@ export const campaigns: Campaign[] = [
     raised: 2.1,
     daysLeft: 0,
     creator: "0xjk1l2m...",
-    category: "art",
     status: "expired",
   },
   {
@@ -62,7 +58,6 @@ export const campaigns: Campaign[] = [
     raised: 4.3,
     daysLeft: 12,
     creator: "0xn3o4p5...",
-    category: "technology",
     status: "active",
   },
   {
@@ -75,7 +70,6 @@ export const campaigns: Campaign[] = [
     raised: 6.8,
     daysLeft: 25,
     creator: "0xq7r8s9...",
-    category: "environment",
     status: "active",
   },
   {
@@ -87,7 +81,6 @@ export const campaigns: Campaign[] = [
     raised: 15.7,
     daysLeft: 18,
     creator: "0xt2u3v4...",
-    category: "community",
     status: "active",
   },
   {
@@ -100,7 +93,6 @@ export const campaigns: Campaign[] = [
     raised: 7.2,
     daysLeft: 8,
     creator: "0xw5x6y7...",
-    category: "education",
     status: "active",
   },
   {
@@ -112,7 +104,6 @@ export const campaigns: Campaign[] = [
     raised: 9.9,
     daysLeft: 5,
     creator: "0xz1a2b3...",
-    category: "environment",
     status: "active",
   },
 ]

@@ -6,7 +6,6 @@ import { useState, useEffect, useMemo } from "react"
 import { useParams, useRouter } from "next/navigation"
 import { motion } from "framer-motion"
 import Image from "next/image"
-import Link from "next/link"
 import { ArrowLeft, Calendar, User, Clock, Share2, Flag, Heart } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Progress } from "@/components/ui/progress"
@@ -16,44 +15,44 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Separator } from "@/components/ui/separator"
 import { useToast } from "@/hooks/use-toast"
-import { campaigns } from "@/lib/data"
-import CampaignCard from "@/components/campaign-card"
 import { getCampaignContract } from "@/utils/thirdweb"
-import { prepareContractCall, resolveMethod } from "thirdweb";
-import { toWei, toEther } from "thirdweb/utils";
-import { useActiveWallet, useReadContract } from "thirdweb/react"
+import { prepareContractCall, resolveMethod, sendTransaction, waitForReceipt } from "thirdweb"
+import { toWei, toEther } from "thirdweb/utils"
+import { useActiveAccount, useReadContract, useSendTransaction } from "thirdweb/react"
+import { sepolia } from "thirdweb/chains"
+import ConnectionButton from "@/app/auth/connection-button"
 
 export default function CampaignDetailPage() {
     const params = useParams()
     const router = useRouter()
     const { toast } = useToast()
-    const [campaign, setCampaign] = useState<any>()
+    const [campaign, setCampaign] = useState<any>(null)
     const [isLoading, setIsLoading] = useState(false)
     const [contributionAmount, setContributionAmount] = useState("0.1")
-    const [isLoggedIn, setIsLoggedIn] = useState(false)
+    const activeAccount: any = useActiveAccount()
+    console.log("the active wallet is ", activeAccount)
     const contract = getCampaignContract()
-    const activeWallet = useActiveWallet()
+    const { mutate: sendTx, data: transactionResult } = useSendTransaction();
 
-    useEffect(() => {
-        if (!activeWallet) {
-            setIsLoading(false);
-        }
-    }, [activeWallet, router, toast])
+    // Check if wallet is connected
+    const isLoggedIn = Boolean(activeAccount)
+
+    // Fetch campaigns from smart contract
     const { data } = useReadContract({
         contract,
-        method: resolveMethod("getCampaigns"),
+        method: resolveMethod("getCampaigns") as unknown as string,
         params: [],
     })
-    console.log("the campaigns list are ", data)
 
-    // Normalize and parse campaign data from contract
+    // Parse campaigns data from smart contract
     const parsedCampaigns = useMemo(() => {
         if (!data) return []
 
-        return data.map((c: any, index: number) => {
+        return data.map((c: any) => {
             const deadline = Number(c.deadline)
             const now = Math.floor(Date.now() / 1000)
             const daysLeft = Math.max(0, Math.ceil((deadline - now) / (60 * 60 * 24)))
+
             return {
                 id: Number(c.campaignId),
                 title: c.title,
@@ -68,8 +67,7 @@ export default function CampaignDetailPage() {
                 smartWallet: c.smartWallet,
                 donations: c.donations,
                 donators: c.donators,
-                category: c.category || "uncategorized", // Assuming your smart contract includes category
-                // Add required Campaign fields
+                category: c.category || "uncategorized",
                 goal: toEther(c.target),
                 raised: toEther(c.amountCollected),
                 daysLeft,
@@ -82,6 +80,8 @@ export default function CampaignDetailPage() {
             }
         })
     }, [data])
+
+    // Find the campaign by ID when data changes
     useEffect(() => {
         if (!params?.id || !parsedCampaigns.length) return;
 
@@ -91,35 +91,73 @@ export default function CampaignDetailPage() {
         if (matchedCampaign) {
             setCampaign(matchedCampaign);
         } else {
-            toast({
-                title: "Campaign not found",
-                description: "The campaign you're looking for doesn't exist.",
-                variant: "destructive",
-            });
+            // Only show toast if we have campaigns data but can't find the campaign
+            if (parsedCampaigns.length > 0) {
+                toast({
+                    title: "Campaign not found",
+                    description: "The campaign you're looking for doesn't exist.",
+                    variant: "destructive",
+                });
+            }
         }
-    }, [params?.id, parsedCampaigns]);
-
-
+    }, [params?.id, parsedCampaigns, toast]);
 
     const handleContribute = async (e: React.FormEvent) => {
         e.preventDefault()
-        if (!isLoggedIn) {
+        console.log("inside the handle contribute functions")
+        try {
+            // Get campaign ID from params
+            const campaignIdStr = typeof params.id === 'string' ? params.id : Array.isArray(params.id) ? params.id[0] : '';
+            console.log("Campaign ID:", campaignIdStr);
+
+            // Prepare transaction
+            const preparedTx = prepareContractCall({
+                contract,
+                method: "function donateToCampaign(uint256 _id)",
+                params: [BigInt(campaignIdStr)],
+                value: toWei(contributionAmount)
+            });
+
+            console.log("Prepared transaction:", preparedTx);
+
+            // Get the wallet account
+
+            if (!activeAccount) {
+                throw new Error("Could not get wallet account");
+
+            }
+            sendTx(preparedTx as any)
+            console.log("the transaction result is ", transactionResult?.transactionHash)
+            // Send transaction with proper wallet connection
+            // const txResult = await sendTransaction({
+            //     transaction: preparedTx,
+            //     account,
+            // });
+
+            // console.log("Transaction sent:", txResult);
+
+            // // Wait for confirmation
+            // const receipt = await waitForReceipt({
+            //     client: preparedTx.client,
+            //     chain: activeWallet.chain, // Use the chain from activeWallet
+            //     transactionHash: txResult.transactionHash,
+            // });
+            // console.log("Transaction confirmed:", receipt);
+
             toast({
-                title: "Wallet not connected",
-                description: "Please connect your wallet to contribute to this campaign.",
+                title: "Contribution successful!",
+                description: `You have successfully contributed ${contributionAmount} ETH to this campaign.`,
+            })
+        } catch (error) {
+            console.error("Transaction error:", error);
+            toast({
+                title: "Transaction failed",
+                description: error instanceof Error ? error.message : "There was an error processing your contribution.",
                 variant: "destructive",
             })
-            return
+        } finally {
+            setIsLoading(false)
         }
-
-        setIsLoading(true)
-
-        toast({
-            title: "Contribution successful!",
-            description: `You have successfully contributed ${contributionAmount} ETH to this campaign.`,
-        })
-
-        setIsLoading(false)
     }
 
     if (!campaign) {
@@ -137,21 +175,26 @@ export default function CampaignDetailPage() {
 
     const percentFunded = Math.min(100, (campaign.raised / campaign.goal) * 100)
 
-    // Get related campaigns (excluding current one)
-    const relatedCampaigns = campaigns.filter((c) => c.category === campaign.category && c.id !== campaign.id).slice(0, 3)
+    // Get related campaigns based on category (removed undefined campaigns reference)
+    const relatedCampaigns = parsedCampaigns
+        .filter((c) => c.category === campaign.category && c.id !== campaign.id)
+        .slice(0, 3)
 
     return (
         <div className="bg-[#f7f7f7] pb-16 pt-8">
             <div className="container">
                 {/* Back button */}
-                <Button
-                    variant="ghost"
-                    className="mb-6 flex items-center gap-2 text-neutral-700 hover:bg-neutral-200/70 hover:text-neutral-900"
-                    onClick={() => router.back()}
-                >
-                    <ArrowLeft className="h-4 w-4" />
-                    Back to campaigns
-                </Button>
+                <div className="container flex flex-row justify-between">
+                    <Button
+                        variant="ghost"
+                        className="mb-6 flex items-center gap-2 text-neutral-700 hover:bg-neutral-200/70 hover:text-neutral-900"
+                        onClick={() => router.back()}
+                    >
+                        <ArrowLeft className="h-4 w-4" />
+                        Back to campaigns
+                    </Button>
+                    <ConnectionButton />
+                </div>
 
                 <div className="grid gap-8 lg:grid-cols-3">
                     {/* Main content - 2/3 width on desktop */}
@@ -160,7 +203,7 @@ export default function CampaignDetailPage() {
                             {/* Campaign Image */}
                             <div className="relative aspect-video w-full overflow-hidden rounded-lg">
                                 <Image
-                                    src={campaign.image || ""}
+                                    src={campaign.image || "/placeholder-campaign.jpg"}
                                     alt={campaign.title}
                                     fill
                                     className="object-cover"
@@ -171,6 +214,7 @@ export default function CampaignDetailPage() {
                                         size="icon"
                                         className="h-9 w-9 rounded-full bg-white/80 backdrop-blur-sm hover:bg-white/90"
                                         onClick={() => {
+                                            navigator.clipboard.writeText(window.location.href);
                                             toast({
                                                 title: "Campaign shared",
                                                 description: "Campaign link copied to clipboard",
@@ -222,22 +266,10 @@ export default function CampaignDetailPage() {
                                         About
                                     </TabsTrigger>
                                     <TabsTrigger
-                                        value="updates"
-                                        className="text-neutral-700 data-[state=active]:bg-[#4c6ef5]/10 data-[state=active]:text-[#4c6ef5]"
-                                    >
-                                        Updates
-                                    </TabsTrigger>
-                                    <TabsTrigger
                                         value="backers"
                                         className="text-neutral-700 data-[state=active]:bg-[#4c6ef5]/10 data-[state=active]:text-[#4c6ef5]"
                                     >
                                         Backers
-                                    </TabsTrigger>
-                                    <TabsTrigger
-                                        value="comments"
-                                        className="text-neutral-700 data-[state=active]:bg-[#4c6ef5]/10 data-[state=active]:text-[#4c6ef5]"
-                                    >
-                                        Comments
                                     </TabsTrigger>
                                 </TabsList>
 
@@ -250,88 +282,19 @@ export default function CampaignDetailPage() {
                                                 solutions and collaborative efforts, we believe we can make a meaningful impact and create
                                                 lasting change.
                                             </p>
+                                            <br />
                                             <h3 className="text-xl font-bold text-neutral-800">The Problem</h3>
                                             <p>In today&rsquo;s rapidly changing world, we face numerous challenges that require creative thinking
                                                 and collective action. Our project focuses on developing sustainable solutions that not only
                                                 address immediate needs but also contribute to long-term positive outcomes.</p>
+                                            <br />
                                             <h3 className="text-xl font-bold text-neutral-800">Our Solution</h3>
                                             <p>We&rsquo;ve developed a comprehensive approach that leverages cutting-edge technology and
                                                 community-driven initiatives. By combining these elements, we can create a scalable and
                                                 effective solution that benefits everyone involved.</p>
-                                            <h3 className="text-xl font-bold text-neutral-800">How Funds Will Be Used</h3>
-                                            <ul>
-                                                <li>Research and development: 40%</li>
-                                                <li>Implementation and deployment: 30%</li>
-                                                <li>Community outreach and education: 20%</li>
-                                                <li>Administrative costs: 10%</li>
-                                            </ul>
-                                            <h3 className="text-xl font-bold text-neutral-800">Timeline</h3>
-                                            <p>
-                                                Our project will be implemented in phases, with regular updates provided to all supporters.
-                                                We&rsquo;re committed to transparency and accountability throughout the process.
-                                            </p>
-                                        </div>
-
-                                        <Separator className="bg-neutral-200" />
-
-                                        <div>
-                                            <h3 className="text-xl font-bold text-neutral-800">Risks & Challenges</h3>
-                                            <p className="mt-2 text-neutral-700">
-                                                As with any ambitious project, there are potential challenges we may face. These include
-                                                regulatory hurdles, technical complexities, and market adoption. However, our experienced team
-                                                is well-equipped to navigate these challenges and adapt our approach as needed.
-                                            </p>
                                         </div>
                                     </div>
                                 </TabsContent>
-
-                                <TabsContent value="updates" className="mt-6">
-                                    <div className="space-y-6">
-                                        <Card className="border-none bg-[#f3f4f6] shadow-sm">
-                                            <CardHeader>
-                                                <div className="flex items-center justify-between">
-                                                    <div>
-                                                        <CardTitle className="text-neutral-800">First milestone reached!</CardTitle>
-                                                        <CardDescription className="text-neutral-600">Posted 3 days ago</CardDescription>
-                                                    </div>
-                                                </div>
-                                            </CardHeader>
-                                            <CardContent>
-                                                <p className="text-neutral-700">
-                                                    We&rsquo;re excited to announce that we&rsquo;ve reached our first milestone! Thanks to your generous
-                                                    support, we&rsquo;ve been able to complete the initial phase of our project ahead of schedule.
-                                                </p>
-                                                <p className="mt-4 text-neutral-700">
-                                                    Next steps include finalizing our prototype and beginning user testing. We&rsquo;ll keep you updated
-                                                    on our progress.
-                                                </p>
-                                            </CardContent>
-                                        </Card>
-
-                                        <Card className="border-none bg-[#f3f4f6] shadow-sm">
-                                            <CardHeader>
-                                                <div className="flex items-center justify-between">
-                                                    <div>
-                                                        <CardTitle className="text-neutral-800">Campaign launched</CardTitle>
-                                                        <CardDescription className="text-neutral-600">Posted 2 weeks ago</CardDescription>
-                                                    </div>
-                                                </div>
-                                            </CardHeader>
-                                            <CardContent>
-                                                <p className="text-neutral-700">
-                                                    Today marks the official launch of our campaign! We&apos;re thrilled to embark on this journey and
-                                                    grateful for your interest and support.
-                                                </p>
-                                                <p className="mt-4 text-neutral-700">
-                                                    Our team has been working tirelessly to prepare for this moment, and we&apos;re confident that
-                                                    together, we can achieve our goals and make a real difference.
-                                                </p>
-                                            </CardContent>
-                                        </Card>
-
-                                    </div>
-                                </TabsContent>
-
                                 <TabsContent value="backers" className="mt-6">
                                     <div className="space-y-6">
                                         <p className="text-neutral-700">
@@ -356,67 +319,6 @@ export default function CampaignDetailPage() {
                                                     </div>
                                                 </div>
                                             ))}
-                                        </div>
-                                    </div>
-                                </TabsContent>
-
-                                <TabsContent value="comments" className="mt-6">
-                                    <div className="space-y-6">
-                                        <p className="text-neutral-700">
-                                            Join the conversation about this campaign. Share your thoughts, ask questions, and connect with
-                                            other supporters.
-                                        </p>
-
-                                        <div className="rounded-lg border border-neutral-200 bg-[#f3f4f6] p-4">
-                                            <textarea
-                                                className="w-full resize-none rounded-md border-none bg-white p-3 text-neutral-800 focus:ring-2 focus:ring-[#4c6ef5]"
-                                                placeholder="Write a comment..."
-                                                rows={3}
-                                            ></textarea>
-                                            <div className="mt-2 flex justify-end">
-                                                <Button className="bg-[#4c6ef5] hover:bg-[#4c6ef5]/90">Post Comment</Button>
-                                            </div>
-                                        </div>
-
-                                        <div className="space-y-4">
-                                            <div className="space-y-4">
-                                                <div className="rounded-lg bg-white p-4 shadow-sm">
-                                                    <div className="flex items-center gap-3">
-                                                        <div className="h-10 w-10 rounded-full bg-neutral-300"></div>
-                                                        <div>
-                                                            <p className="font-medium text-neutral-800">Alex Thompson</p>
-                                                            <p className="text-sm text-neutral-600">2 days ago</p>
-                                                        </div>
-                                                    </div>
-                                                    <p className="mt-3 text-neutral-700">
-                                                        This is exactly the kind of innovation we need right now. I&apos;m excited to see how this
-                                                        project develops!
-                                                    </p>
-
-                                                </div>
-
-                                                <div className="rounded-lg bg-white p-4 shadow-sm">
-                                                    <div className="flex items-center gap-3">
-                                                        <div className="h-10 w-10 rounded-full bg-neutral-300"></div>
-                                                        <div>
-                                                            <p className="font-medium text-neutral-800">Jamie Rodriguez</p>
-                                                            <p className="text-sm text-neutral-600">5 days ago</p>
-                                                        </div>
-                                                    </div>
-                                                    <p className="mt-3 text-neutral-700">
-                                                        I have a question about the implementation timeline. Will there be a beta testing phase
-                                                        before the full launch?
-                                                    </p>
-                                                    <div className="mt-4 rounded-lg bg-[#f3f4f6] p-3">
-                                                        <p className="text-sm text-neutral-600">
-                                                            <span className="font-medium text-neutral-800">Creator Response:</span> Yes, we&apos;re
-                                                            planning a beta testing phase in month 3 of our timeline. We&apos;ll be reaching out to early
-                                                            supporters for participation!
-                                                        </p>
-
-                                                    </div>
-                                                </div>
-                                            </div>
                                         </div>
                                     </div>
                                 </TabsContent>
@@ -459,11 +361,11 @@ export default function CampaignDetailPage() {
                                             </div>
                                             <div className="flex items-center gap-2 text-sm text-neutral-700">
                                                 <User className="h-4 w-4 text-neutral-500" />
-                                                <span>Created by {campaign.creator}</span>
+                                                <span>Created by {campaign.creator.slice(0, 6)}...{campaign.creator.slice(-4)}</span>
                                             </div>
                                             <div className="flex items-center gap-2 text-sm text-neutral-700">
                                                 <Clock className="h-4 w-4 text-neutral-500" />
-                                                <span>Launched {Math.floor(Math.random() * 30) + 5} days ago</span>
+                                                <span>Launched 2 days ago</span>
                                             </div>
                                         </div>
 
@@ -487,36 +389,14 @@ export default function CampaignDetailPage() {
                                                 />
                                             </div>
 
-                                            <Button type="submit" className="w-full bg-[#4c6ef5] hover:bg-[#4c6ef5]/90" disabled={isLoading}>
-                                                {isLoading ? "Processing..." : "Contribute Now"}
-                                            </Button>
-
-                                            {!isLoggedIn && (
-                                                <p className="text-center text-sm text-neutral-600">
-                                                    <Link href="/auth" className="text-[#4c6ef5] hover:underline">
-                                                        Connect your wallet
-                                                    </Link>{" "}
-                                                    to contribute to this campaign
-                                                </p>
-                                            )}
-                                        </form>
-
-                                        <div className="flex items-center justify-center gap-2">
                                             <Button
-                                                variant="outline"
-                                                size="sm"
-                                                className="border-neutral-300 text-neutral-700 hover:bg-neutral-200/70 hover:text-neutral-900"
-                                                onClick={() => {
-                                                    toast({
-                                                        title: "Campaign reported",
-                                                        description: "Thank you for your feedback. We'll review this campaign.",
-                                                    })
-                                                }}
+                                                type="submit"
+                                                className="w-full bg-[#4c6ef5] hover:bg-[#4c6ef5]/90"
+                                                disabled={isLoading || (campaign.raised >= campaign.goal)}
                                             >
-                                                <Flag className="mr-2 h-4 w-4" />
-                                                Report Campaign
+                                                {isLoading ? "Processing..." : (campaign.raised >= campaign.goal) ? "Campaign Completed 🫡" : "Contribute now "}
                                             </Button>
-                                        </div>
+                                        </form>
                                     </div>
                                 </CardContent>
                             </Card>
@@ -530,9 +410,9 @@ export default function CampaignDetailPage() {
                                     <div className="flex items-center gap-3">
                                         <div className="h-12 w-12 rounded-full bg-neutral-300"></div>
                                         <div>
-                                            <p className="font-medium text-neutral-800">Creator Name</p>
+                                            <p className="font-medium text-neutral-800">Creator Wallet</p>
                                             <p className="text-sm text-neutral-600">
-                                                {campaign.creator} · {Math.floor(Math.random() * 5) + 1} campaigns
+                                                {campaign.creator.slice(0, 6)}...{campaign.creator.slice(-4)}
                                             </p>
                                         </div>
                                     </div>
@@ -540,20 +420,41 @@ export default function CampaignDetailPage() {
                                         Experienced creator with a passion for innovative solutions. Committed to transparency and
                                         delivering value to supporters.
                                     </p>
-                                    <Button
-                                        variant="outline"
-                                        className="mt-4 w-full border-neutral-300 text-neutral-700 hover:bg-neutral-200/70 hover:text-neutral-900"
-                                        onClick={() => {
-                                            toast({
-                                                title: "Message sent",
-                                                description: "Your message has been sent to the creator.",
-                                            })
-                                        }}
-                                    >
-                                        Contact Creator
-                                    </Button>
                                 </CardContent>
                             </Card>
+
+                            {/* Related Campaigns */}
+                            {relatedCampaigns.length > 0 && (
+                                <Card className="mt-6 border-none bg-[#f3f4f6] shadow-sm">
+                                    <CardHeader>
+                                        <CardTitle className="text-lg text-neutral-800">Similar Campaigns</CardTitle>
+                                    </CardHeader>
+                                    <CardContent>
+                                        <div className="space-y-4">
+                                            {relatedCampaigns.map((relatedCampaign) => (
+                                                <div
+                                                    key={relatedCampaign.id}
+                                                    className="flex cursor-pointer items-center gap-3 rounded-lg p-2 hover:bg-neutral-200/50"
+                                                    onClick={() => router.push(`/campaigns/${relatedCampaign.id}`)}
+                                                >
+                                                    <div className="relative h-16 w-24 overflow-hidden rounded">
+                                                        <Image
+                                                            src={relatedCampaign.image || "/placeholder-campaign.jpg"}
+                                                            alt={relatedCampaign.title}
+                                                            fill
+                                                            className="object-cover"
+                                                        />
+                                                    </div>
+                                                    <div>
+                                                        <p className="font-medium text-neutral-800 line-clamp-1">{relatedCampaign.title}</p>
+                                                        <p className="text-sm text-neutral-600">{relatedCampaign.raised} ETH raised</p>
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </CardContent>
+                                </Card>
+                            )}
                         </motion.div>
                     </div>
                 </div>

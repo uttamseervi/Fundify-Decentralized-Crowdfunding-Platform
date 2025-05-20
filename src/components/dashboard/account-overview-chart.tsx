@@ -3,7 +3,16 @@
 import { useEffect, useState } from "react"
 import { motion } from "framer-motion"
 import { campaigns } from "@/lib/data"
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from "recharts"
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  Legend,
+} from "recharts"
 
 export default function AccountOverviewChart() {
   const [mounted, setMounted] = useState(false)
@@ -19,9 +28,9 @@ export default function AccountOverviewChart() {
   // Prepare data for the chart
   const chartData = campaigns.slice(0, 6).map((campaign) => ({
     name: campaign.title.split(" ").slice(0, 2).join(" "),
-    goal: campaign.goal,
-    raised: campaign.raised,
-    progress: Math.round((campaign.raised / campaign.goal) * 100),
+    goal: Number(campaign.goal),
+    raised: Number(campaign.raised),
+    progress: campaign.goal > 0 ? Math.round((campaign.raised / campaign.goal) * 100) : 0,
   }))
 
   return (
@@ -47,7 +56,8 @@ export default function AccountOverviewChart() {
           <Tooltip
             formatter={(value, name) => {
               if (name === "progress") return [`${value}%`, "Progress"]
-              return [`${value} ETH`, name.charAt(0).toUpperCase() + name.slice(1)]
+              const nameStr = String(name)
+              return [`${value} ETH`, nameStr.charAt(0).toUpperCase() + nameStr.slice(1)]
             }}
           />
           <Legend />

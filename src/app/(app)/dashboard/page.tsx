@@ -3,8 +3,11 @@
 import { Suspense } from "react"
 import DashboardOverview from "@/components/dashboard/dashboard-overview"
 import { Skeleton } from "@/components/ui/skeleton"
+import { useActiveWallet } from "thirdweb/react"
 
 export default function DashboardPage() {
+  const activeWallet = useActiveWallet()
+  console.log("the active wallet is ", activeWallet)
   return (
     <div className="space-y-8">
       <div>

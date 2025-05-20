@@ -22,17 +22,16 @@ import { useToast } from "@/hooks/use-toast"
 import { useActiveWallet, useSendTransaction } from "thirdweb/react"
 import { getCampaignContract, uploadImageToIPFS } from "@/utils/thirdweb"
 import { prepareContractCall, sendTransaction, waitForReceipt } from "thirdweb"
-// import { useAutoConnect } from "thirdweb/react"
 import { createWallet } from "thirdweb/wallets"
 import { client } from "@/app/client"
-// import 
+
 export default function CreateCampaignPage() {
   const router = useRouter()
   const { toast } = useToast()
 
   const wallets = [createWallet("io.metamask")];
   const activeWallet = useActiveWallet()
-  const contract = getCampaignContract()
+  const contract: any = getCampaignContract()
   // const { data: autoConnected } = useAutoConnect({
   //   client,
   //   wallets
@@ -119,9 +118,7 @@ export default function CreateCampaignPage() {
       // 👇 Send the transaction using Thirdweb's sendTransaction helper
       const txResult = await sendTransaction({
         transaction: preparedTx,
-        account: activeWallet?.getAccount(),
-        chain: preparedTx.chain,
-        client: preparedTx.client,
+        account: activeWallet?.getAccount() as any,
       });
 
       console.log("📤 Transaction sent! Hash:", txResult.transactionHash);

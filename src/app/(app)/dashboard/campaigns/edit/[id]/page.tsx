@@ -9,7 +9,6 @@ import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Calendar } from "@/components/ui/calendar"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { format, addDays } from "date-fns"
@@ -28,11 +27,9 @@ export default function EditCampaignPage() {
     title: "",
     description: "",
     goal: "",
-    category: "",
   })
 
   useEffect(() => {
-    // Find campaign by ID
     const campaignId = params.id as string
     const campaign = campaigns.find((c) => c.id === campaignId)
 
@@ -41,13 +38,9 @@ export default function EditCampaignPage() {
         title: campaign.title,
         description: campaign.description,
         goal: campaign.goal.toString(),
-        category: campaign.category,
       })
-
-      // Set a dummy deadline date based on daysLeft
       setDate(addDays(new Date(), campaign.daysLeft))
     } else {
-      // Campaign not found, redirect back
       router.push("/dashboard/campaigns")
     }
   }, [params.id, router])
@@ -61,7 +54,6 @@ export default function EditCampaignPage() {
     e.preventDefault()
     setIsLoading(true)
 
-    // Simulate API call
     await new Promise((resolve) => setTimeout(resolve, 1500))
 
     toast({
@@ -117,40 +109,19 @@ export default function EditCampaignPage() {
               />
             </div>
 
-            <div className="grid gap-4 sm:grid-cols-2">
-              <div className="space-y-2">
-                <Label htmlFor="goal">Funding Goal (ETH)</Label>
-                <Input
-                  id="goal"
-                  name="goal"
-                  type="number"
-                  step="0.01"
-                  min="0.01"
-                  placeholder="0.00"
-                  value={formData.goal}
-                  onChange={handleChange}
-                  required
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="category">Category</Label>
-                <Select
-                  value={formData.category}
-                  onValueChange={(value) => setFormData((prev) => ({ ...prev, category: value }))}
-                >
-                  <SelectTrigger id="category">
-                    <SelectValue placeholder="Select category" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="technology">Technology</SelectItem>
-                    <SelectItem value="art">Art</SelectItem>
-                    <SelectItem value="community">Community</SelectItem>
-                    <SelectItem value="education">Education</SelectItem>
-                    <SelectItem value="environment">Environment</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
+            <div className="space-y-2">
+              <Label htmlFor="goal">Funding Goal (ETH)</Label>
+              <Input
+                id="goal"
+                name="goal"
+                type="number"
+                step="0.01"
+                min="0.01"
+                placeholder="0.00"
+                value={formData.goal}
+                onChange={handleChange}
+                required
+              />
             </div>
 
             <div className="grid gap-4 sm:grid-cols-2">
