@@ -82,37 +82,6 @@ export default function CampaignCard({ campaign }: CampaignCardProps) {
               className="absolute right-2 top-2 z-10 flex gap-1"
             >
               <Button asChild size="icon" variant="secondary" className="h-8 w-8 bg-[#f7f7f7]/90">
-                <Link href={`/dashboard/campaigns/edit/${campaign.id}`}>
-                  <Edit className="h-4 w-4" />
-                  <span className="sr-only">Edit</span>
-                </Link>
-              </Button>
-
-              <AlertDialog>
-                <AlertDialogTrigger asChild>
-                  <Button size="icon" variant="secondary" className="h-8 w-8 bg-[#f7f7f7]/90">
-                    <Trash2 className="h-4 w-4" />
-                    <span className="sr-only">Delete</span>
-                  </Button>
-                </AlertDialogTrigger>
-                <AlertDialogContent className="bg-[#f7f7f7]">
-                  <AlertDialogHeader>
-                    <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-                    <AlertDialogDescription>
-                      This action cannot be undone. This will permanently delete the campaign and remove it from our
-                      servers.
-                    </AlertDialogDescription>
-                  </AlertDialogHeader>
-                  <AlertDialogFooter>
-                    <AlertDialogCancel className="border-neutral-300 text-neutral-700">Cancel</AlertDialogCancel>
-                    <AlertDialogAction onClick={handleDelete} className="bg-[#4c6ef5] hover:bg-[#4c6ef5]/90">
-                      Delete
-                    </AlertDialogAction>
-                  </AlertDialogFooter>
-                </AlertDialogContent>
-              </AlertDialog>
-
-              <Button asChild size="icon" variant="secondary" className="h-8 w-8 bg-[#f7f7f7]/90">
                 <Link href={`/campaigns/${campaign.id}`}>
                   <ExternalLink className="h-4 w-4" />
                   <span className="sr-only">View</span>

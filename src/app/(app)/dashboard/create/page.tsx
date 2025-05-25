@@ -138,7 +138,7 @@ export default function CreateCampaignPage() {
       })
 
       // Redirect to dashboard
-      // router.push("/dashboard")
+      router.push("/dashboard")
     } catch (error: any) {
       console.error("Error creating campaign:", error)
       toast({
