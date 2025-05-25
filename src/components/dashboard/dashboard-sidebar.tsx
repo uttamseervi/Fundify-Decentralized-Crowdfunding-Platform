@@ -29,14 +29,9 @@ const sidebarLinks = [
     icon: Users,
   },
   {
-    title: "Account",
-    href: "/dashboard/account",
+    title: "Profile",
+    href: "/dashboard/profile",
     icon: User,
-  },
-  {
-    title: "Settings",
-    href: "/dashboard/settings",
-    icon: Settings,
   },
 ]
 

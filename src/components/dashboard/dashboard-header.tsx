@@ -33,25 +33,6 @@ export default function DashboardHeader() {
         <div>{/* Left side - can be used for breadcrumbs or page title */}</div>
 
         <div className="flex items-center gap-4">
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="relative text-neutral-700 hover:bg-neutral-200/70 hover:text-neutral-900"
-                >
-                  <Bell className="h-5 w-5" />
-                  <span className="absolute right-1 top-1 h-2 w-2 rounded-full bg-[#4c6ef5]"></span>
-                  <span className="sr-only">Notifications</span>
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>Notifications</p>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-
           <div className="hidden items-center gap-2 md:flex">
             <div className="text-sm">
               <ConnectionButton />
