@@ -89,7 +89,7 @@ export default function HowItWorksPage() {
     <div className="bg-[#f7f7f7]">
       <Button
         variant="ghost"
-        className="mb-6 flex items-center gap-2 text-neutral-700 hover:bg-neutral-200/70 hover:text-neutral-900"
+        className="mb-6 mt-5 ml-4 flex items-center gap-2 text-neutral-700 hover:bg-neutral-200/70 hover:text-neutral-900"
         onClick={() => router.push("/")}
       >
         <ArrowLeft className="h-4 w-4" />
