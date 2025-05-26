@@ -7,7 +7,17 @@ import Image from "next/image"
 import placeholder from "../public/placeholder.svg"
 import Navbar from "@/components/navbar"
 import Footer from "@/components/footer"
+import { useEffect } from "react"
+import { useRouter } from "next/router"
 export default function LandingPage() {
+  const router = useRouter();
+
+  useEffect(() => {
+
+    if (router.pathname === '/') {
+      window.location.reload();
+    }
+  }, [router.pathname]);
   return (
     <>
       <Navbar />

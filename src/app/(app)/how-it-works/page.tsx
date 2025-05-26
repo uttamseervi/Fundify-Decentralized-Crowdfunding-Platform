@@ -2,10 +2,13 @@
 
 import { motion } from "framer-motion"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Shield, Lock, Zap, BarChart, Users, Globe, Bolt, Database, ArrowBigLeft } from "lucide-react"
+import { Shield, Lock, Zap, BarChart, Users, Globe, Bolt, Database, ArrowBigLeft, ArrowLeft } from "lucide-react"
 import Link from "next/link"
+import { Button } from "@/components/ui/button"
+import { useRouter } from "next/navigation"
 
 export default function HowItWorksPage() {
+  const router = useRouter()
   const features = [
     {
       icon: <Shield className="h-10 w-10 text-neutral-700" />,
@@ -84,12 +87,14 @@ export default function HowItWorksPage() {
 
   return (
     <div className="bg-[#f7f7f7]">
-      <Link href="/" className="p-2 m-2 hover:underline">
-        <div className="flex flex-row hover:underline ml-8">
-          <span><ArrowBigLeft /> </span>
-          <h4>Go back to home</h4>
-        </div>
-      </Link>
+      <Button
+        variant="ghost"
+        className="mb-6 flex items-center gap-2 text-neutral-700 hover:bg-neutral-200/70 hover:text-neutral-900"
+        onClick={() => router.push("/")}
+      >
+        <ArrowLeft className="h-4 w-4" />
+        Back to Home
+      </Button>
 
       {/* Hero Section */}
       <section className="py-20">
