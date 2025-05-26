@@ -33,19 +33,6 @@ export default function CampaignDetailPage() {
     const [contributionAmount, setContributionAmount] = useState("0.1")
     const [walletBalance, setWalletBalance] = useState(0)
     const activeAccount: any = useActiveAccount()
-    // useEffect(() => {
-    //     const fetchWalletBalance = async () => {
-    //         const balance = await getWalletBalance({
-    //             address: activeAccount.address,
-    //             client: client,
-    //             chain: sepolia,
-    //         })
-    //         console.log("the balance is ", balance)
-    //     }
-    //     fetchWalletBalance()
-
-    // }, [activeAccount])
-
     console.log("the active wallet is ", activeAccount)
     const contract = getCampaignContract()
     const { mutate: sendTx, data: transactionResult } = useSendTransaction();
@@ -53,7 +40,6 @@ export default function CampaignDetailPage() {
     // Check if wallet is connected
     const isLoggedIn = Boolean(activeAccount)
 
-    // Fetch campaigns from smart contract
     const { data } = useReadContract({
         contract,
         method: resolveMethod("getCampaigns") as unknown as string,

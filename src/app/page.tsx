@@ -8,16 +8,17 @@ import placeholder from "../public/placeholder.svg"
 import Navbar from "@/components/navbar"
 import Footer from "@/components/footer"
 import { useEffect } from "react"
-import { useRouter } from "next/router"
+import { usePathname, useRouter } from "next/navigation"
 export default function LandingPage() {
   const router = useRouter();
+  const pathname = usePathname()
 
   useEffect(() => {
 
-    if (router.pathname === '/') {
+    if (pathname=== '/') {
       window.location.reload();
     }
-  }, [router.pathname]);
+  }, [pathname]);
   return (
     <>
       <Navbar />
