@@ -111,7 +111,7 @@ export default function HowItWorksPage() {
             <p className="mt-6 text-lg text-neutral-600 md:text-xl">
               A transparent, trustless platform that puts creators and backers in direct control.
             </p>
-            <p className="mt-3 text-lg text-neutral-600 md:text-[9px]">
+            <p className="mt-3 text-lg text-neutral-600 md:text-[12px]">
               You can view all transactions at the contract address:
               <span className="break-all font-mono"> 0xdc0E3A995a5d31db1203CE4d7c22d96197D82D35</span>
               , or directly on{" "}
