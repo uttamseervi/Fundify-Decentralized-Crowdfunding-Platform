@@ -20,7 +20,9 @@ import { prepareContractCall, resolveMethod, sendTransaction, waitForReceipt } f
 import { toWei, toEther } from "thirdweb/utils"
 import { useActiveAccount, useReadContract, useSendTransaction } from "thirdweb/react"
 import { sepolia } from "thirdweb/chains"
+import { getWalletBalance } from "thirdweb/wallets";
 import ConnectionButton from "@/app/auth/connection-button"
+import { client } from "@/app/client"
 
 export default function CampaignDetailPage() {
     const params = useParams()
@@ -29,7 +31,21 @@ export default function CampaignDetailPage() {
     const [campaign, setCampaign] = useState<any>(null)
     const [isLoading, setIsLoading] = useState(false)
     const [contributionAmount, setContributionAmount] = useState("0.1")
+    const [walletBalance, setWalletBalance] = useState(0)
     const activeAccount: any = useActiveAccount()
+    // useEffect(() => {
+    //     const fetchWalletBalance = async () => {
+    //         const balance = await getWalletBalance({
+    //             address: activeAccount.address,
+    //             client: client,
+    //             chain: sepolia,
+    //         })
+    //         console.log("the balance is ", balance)
+    //     }
+    //     fetchWalletBalance()
+
+    // }, [activeAccount])
+
     console.log("the active wallet is ", activeAccount)
     const contract = getCampaignContract()
     const { mutate: sendTx, data: transactionResult } = useSendTransaction();
@@ -43,7 +59,13 @@ export default function CampaignDetailPage() {
         method: resolveMethod("getCampaigns") as unknown as string,
         params: [],
     })
-
+    const { data: backers } = useReadContract({
+        contract,
+        method: resolveMethod("getDonators") as unknown as string,
+        params: [BigInt(params.id as string)],
+    })
+    const backersData: string[] = backers ? (backers[0] as string[]) : [];
+    console.log("the backers are ", backers)
     // Parse campaigns data from smart contract
     const parsedCampaigns = useMemo(() => {
         if (!data) return []
@@ -126,23 +148,23 @@ export default function CampaignDetailPage() {
                 throw new Error("Could not get wallet account");
 
             }
-            sendTx(preparedTx as any)
-            console.log("the transaction result is ", transactionResult?.transactionHash)
+            // sendTx(preparedTx as any)
+            // console.log("the transaction result is ", transactionResult?.transactionHash)
             // Send transaction with proper wallet connection
-            // const txResult = await sendTransaction({
-            //     transaction: preparedTx,
-            //     account,
-            // });
+            const txResult = await sendTransaction({
+                transaction: preparedTx,
+                account: activeAccount,
+            });
 
-            // console.log("Transaction sent:", txResult);
+            console.log("Transaction sent:", txResult);
 
-            // // Wait for confirmation
-            // const receipt = await waitForReceipt({
-            //     client: preparedTx.client,
-            //     chain: activeWallet.chain, // Use the chain from activeWallet
-            //     transactionHash: txResult.transactionHash,
-            // });
-            // console.log("Transaction confirmed:", receipt);
+            // Wait for confirmation
+            const receipt = await waitForReceipt({
+                client: preparedTx.client,
+                chain: sepolia,
+                transactionHash: txResult.transactionHash,
+            });
+            console.log("Transaction confirmed:", receipt.transactionHash);
 
             toast({
                 title: "Contribution successful!",
@@ -298,27 +320,30 @@ export default function CampaignDetailPage() {
                                 <TabsContent value="backers" className="mt-6">
                                     <div className="space-y-6">
                                         <p className="text-neutral-700">
-                                            This campaign has received support from {Math.floor(Math.random() * 30) + 10} backers so far. Join
+                                            This campaign has received support from {backersData?.length || 0} backers so far. Join
                                             them in bringing this project to life!
                                         </p>
 
                                         <div className="space-y-4">
-                                            {Array.from({ length: 5 }).map((_, index) => (
-                                                <div key={index} className="flex items-center justify-between rounded-lg bg-[#f3f4f6] p-4">
-                                                    <div className="flex items-center gap-3">
-                                                        <div className="h-10 w-10 rounded-full bg-neutral-300"></div>
-                                                        <div>
-                                                            <p className="font-medium text-neutral-800">
-                                                                {`0x${Math.random().toString(16).slice(2, 8)}...${Math.random().toString(16).slice(2, 6)}`}
-                                                            </p>
-                                                            <p className="text-sm text-neutral-600">{Math.floor(Math.random() * 5) + 1} days ago</p>
+                                            {backersData && backersData?.length > 0 ? (
+                                                backersData?.map((backer: string, index: number) => (
+                                                    <div key={index} className="flex items-center justify-between rounded-lg bg-[#f3f4f6] p-4">
+                                                        <div className="flex items-center gap-3">
+                                                            <div className="h-10 w-10 rounded-full bg-neutral-300"></div>
+                                                            <div>
+                                                                <p className="font-medium text-neutral-800">
+                                                                    {backer.slice(0, 6)}...{backer.slice(-4)}
+                                                                </p>
+                                                                <p className="text-sm text-neutral-600">Backer #{index + 1}</p>
+                                                            </div>
                                                         </div>
                                                     </div>
-                                                    <div className="text-right">
-                                                        <p className="font-medium text-neutral-800">{(Math.random() * 2 + 0.1).toFixed(2)} ETH</p>
-                                                    </div>
+                                                ))
+                                            ) : (
+                                                <div className="text-center py-8 text-neutral-600">
+                                                    No backers yet. Be the first to support this campaign!
                                                 </div>
-                                            ))}
+                                            )}
                                         </div>
                                     </div>
                                 </TabsContent>
