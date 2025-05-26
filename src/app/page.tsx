@@ -18,7 +18,7 @@ export default function LandingPage() {
     if (pathname=== '/') {
       window.location.reload();
     }
-  }, [pathname]);
+  }, []);
   return (
     <>
       <Navbar />
