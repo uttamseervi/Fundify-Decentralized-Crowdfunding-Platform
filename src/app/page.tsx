@@ -8,8 +8,14 @@ import placeholder from "../public/placeholder.svg"
 import Navbar from "@/components/navbar"
 import Footer from "@/components/footer"
 import { useEffect } from "react"
+import { useRouter } from "next/navigation"
 export default function LandingPage() {
-  
+
+  const router = useRouter();
+  useEffect(() => {
+    router.refresh()
+  }, [router])
+
   return (
     <>
       <Navbar />

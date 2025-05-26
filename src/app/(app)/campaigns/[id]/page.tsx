@@ -33,7 +33,6 @@ export default function CampaignDetailPage() {
     const [contributionAmount, setContributionAmount] = useState("0.1")
     const [walletBalance, setWalletBalance] = useState(0)
     const activeAccount: any = useActiveAccount()
-    console.log("the active wallet is ", activeAccount)
     const contract = getCampaignContract()
     const { mutate: sendTx, data: transactionResult } = useSendTransaction();
 
@@ -112,7 +111,7 @@ export default function CampaignDetailPage() {
 
     const handleContribute = async (e: React.FormEvent) => {
         e.preventDefault()
-        console.log("inside the handle contribute functions")
+        setIsLoading(true)
         try {
             // Get campaign ID from params
             const campaignIdStr = typeof params.id === 'string' ? params.id : Array.isArray(params.id) ? params.id[0] : '';
@@ -154,7 +153,7 @@ export default function CampaignDetailPage() {
 
             toast({
                 title: "Contribution successful!",
-                description: `You have successfully contributed ${contributionAmount} ETH to this campaign.`,
+                description: `You have successfully contributed ${contributionAmount} ETH to this campaign, And the transaction hash is ${receipt.transactionHash}`,
             })
         } catch (error) {
             console.error("Transaction error:", error);
@@ -165,6 +164,7 @@ export default function CampaignDetailPage() {
             })
         } finally {
             setIsLoading(false)
+            router.refresh()
         }
     }
 
@@ -419,12 +419,20 @@ export default function CampaignDetailPage() {
                                 </CardHeader>
                                 <CardContent>
                                     <div className="flex items-center gap-3">
-                                        <div className="h-12 w-12 rounded-full bg-neutral-300"></div>
-                                        <div>
-                                            <p className="font-medium text-neutral-800">Creator Wallet</p>
-                                            <p className="text-sm text-neutral-600">
-                                                {campaign.creator.slice(0, 6)}...{campaign.creator.slice(-4)}
-                                            </p>
+                                        <div className="h-16 w-12 rounded-full bg-neutral-300"></div>
+                                        <div className="flex items-center justify-center flex-col-reverse gap-3">
+                                            <div>
+                                                <p className="font-medium text-neutral-800">Creator Wallet</p>
+                                                <p className="text-sm text-neutral-600">
+                                                    {campaign.creator}
+                                                </p>
+                                            </div>
+                                            <div>
+                                                <p className="font-medium text-neutral-800">Creator Smart Wallet</p>
+                                                <p className="text-sm text-neutral-600">
+                                                    {campaign.smartWallet}
+                                                </p>
+                                            </div>
                                         </div>
                                     </div>
                                     <p className="mt-4 text-sm text-neutral-700">
