@@ -7,7 +7,7 @@ import {
 } from "thirdweb/auth";
 import { privateKeyToAccount } from "thirdweb/wallets";
 import { createThirdwebClient } from "thirdweb";
-import { prisma } from "@/utils/prisma-client"; 
+import { prisma } from "@/utils/prisma-client";
 
 // 1. Setup thirdweb client and auth
 const secretKey: string = process.env.SECRET_KEY || "";
@@ -42,18 +42,6 @@ export async function login(payload: VerifyLoginPayloadParams) {
     }
 
     const smartWalletAddress = verifiedPayload.payload.address;
-
-    // Prisma check
-    const user = await prisma.user.findUnique({
-        where: {
-            smartWalletAddress: smartWalletAddress,
-        },
-    });
-
-    if (!user) {
-        console.warn("User not found in DB:", smartWalletAddress);
-        throw new Error("User not registered. Please sign up first.");
-    }
 
     // User exists, generate JWT
     const jwt = await thirdwebAuth.generateJWT({

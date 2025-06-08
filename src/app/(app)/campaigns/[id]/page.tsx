@@ -397,15 +397,19 @@ export default function CampaignDetailPage() {
                                                     onChange={(e) => setContributionAmount(e.target.value)}
                                                     className="border-neutral-300 bg-white focus:border-[#4c6ef5] focus:ring-[#4c6ef5]"
                                                     required
+                                                    disabled={campaign.status === "ended" || campaign.raised >= campaign.goal}
                                                 />
                                             </div>
 
                                             <Button
                                                 type="submit"
                                                 className="w-full bg-[#4c6ef5] hover:bg-[#4c6ef5]/90"
-                                                disabled={isLoading || (campaign.raised >= campaign.goal)}
+                                                disabled={isLoading || campaign.status === "ended" || campaign.raised >= campaign.goal}
                                             >
-                                                {isLoading ? "Processing..." : (campaign.raised >= campaign.goal) ? "Campaign Completed 🫡" : "Contribute now "}
+                                                {isLoading ? "Processing..." :
+                                                    campaign.status === "ended" ? "Campaign Expired ⏰" :
+                                                        campaign.raised >= campaign.goal ? "Campaign Completed 🫡" :
+                                                            "Contribute now"}
                                             </Button>
                                         </form>
                                     </div>

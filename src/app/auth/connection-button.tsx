@@ -12,13 +12,10 @@ import {
 import { createWallet } from "thirdweb/wallets";
 import { sepolia } from "thirdweb/chains";
 import { useToast } from "@/hooks/use-toast";
-import { useDispatch } from "react-redux";
-import { registerUser } from "@/store/reducers/userReducer";
 
 export default function ConnectionButton({ type = "signin" }) {
     const wallets = [createWallet("io.metamask")];
     const router = useRouter();
-    const dispatch = useDispatch();
     const adminWallet = useAdminWallet();
     const { toast } = useToast();
 
@@ -38,19 +35,6 @@ export default function ConnectionButton({ type = "signin" }) {
                 },
                 getLoginPayload: async ({ address }) => {
                     console.log("⚙️ getLoginPayload: Received address:", address);
-
-                    if (type === "signup") {
-                        console.log("📝 Signup detected. Dispatching registerUser...");
-                        dispatch<any>(
-                            registerUser({
-                                smartWalletAddress: address,
-                                walletAddress: adminWallet?.getAccount()?.address,
-                                toast,
-                                router,
-                            })
-                        );
-                    }
-
                     const payload = await generatePayload({ address, chainId: 11155111 });
                     console.log("📦 Generated login payload:", payload);
                     return payload;
