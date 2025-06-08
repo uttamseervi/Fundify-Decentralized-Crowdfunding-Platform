@@ -2,10 +2,9 @@ import type React from "react"
 import type { Metadata } from "next"
 import { Space_Grotesk } from "next/font/google"
 import "./globals.css"
-
 import { ThirdwebProvider } from "thirdweb/react";
 import { ThemeProvider } from "@/components/theme-provider"
-
+import { Analytics } from "@vercel/analytics/next"
 import { StoreProvider } from "@/store/storeProvider";
 import { Toaster } from "@/components/ui/toaster";
 
@@ -36,6 +35,7 @@ export default function RootLayout({
                 <main className="flex-1">
                   {children}
                   <Toaster />
+                  <Analytics />
                 </main>
               </div>
             </ThirdwebProvider>
